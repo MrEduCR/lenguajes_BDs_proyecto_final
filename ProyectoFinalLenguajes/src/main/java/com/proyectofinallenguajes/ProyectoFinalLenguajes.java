@@ -3,7 +3,9 @@ package com.proyectofinallenguajes;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ProyectoFinalLenguajes {
+import com.proyectofinallenguajes.conexion.DatabaseConnection;
+
+public class proyectoFinalLenguajes {
 
     public static void main(String[] args) {
         //Asegurarse de tener version jdk 17

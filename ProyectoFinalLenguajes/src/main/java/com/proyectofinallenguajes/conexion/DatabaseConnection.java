@@ -1,4 +1,4 @@
-package com.proyectofinallenguajes;
+package com.proyectofinallenguajes.conexion;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
