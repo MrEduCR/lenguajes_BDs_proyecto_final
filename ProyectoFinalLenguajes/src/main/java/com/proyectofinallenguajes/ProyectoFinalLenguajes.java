@@ -8,6 +8,7 @@ public class ProyectoFinalLenguajes {
 
         java.awt.EventQueue.invokeLater(() -> {
             new FrmClientes().setVisible(true);
+            System.out.println("");
         });
 
     }
