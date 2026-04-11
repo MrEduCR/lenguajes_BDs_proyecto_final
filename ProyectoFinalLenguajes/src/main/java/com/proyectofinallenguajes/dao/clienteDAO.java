@@ -35,6 +35,7 @@ public class clienteDAO {
             }
 
         } catch (SQLException e) {
+            System.out.println("Error al listar clientes: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -62,6 +63,7 @@ public class clienteDAO {
             System.out.println("Insertado ID: " + idNuevo);
 
         } catch (SQLException e) {
+            System.out.println("Error al insertar cliente: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -82,6 +84,7 @@ public class clienteDAO {
             cs.execute();
 
         } catch (SQLException e) {
+            System.out.println("Error al actualizar cliente: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -97,7 +100,8 @@ public class clienteDAO {
             cs.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error al eliminar cliente: " + e.getMessage());
+             e.printStackTrace();
         }
     }
 }
