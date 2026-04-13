@@ -147,12 +147,13 @@ CREATE TABLE detalle_orden (
 
 CREATE TABLE auditoria (
     id_auditoria    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    tabla_afectada  VARCHAR2(100),  
-    operacion       VARCHAR2(10),         
-    valor_anterior  CLOB,           
-    valor_nuevo     CLOB,          
-    usuario_bd      VARCHAR2(100),  
-    fecha           TIMESTAMP     
+    tabla_afectada  VARCHAR2(100),
+    operacion       VARCHAR2(10),
+    id_registro     VARCHAR2(100),
+    valor_anterior  CLOB,
+    valor_nuevo     CLOB,
+    usuario_bd      VARCHAR2(100),
+    fecha           TIMESTAMP
 );
 -- ============================================
 -- ELIMINACION DE TABLAS
@@ -229,15 +230,60 @@ INSERT INTO detalle_orden (id_orden, id_item, cantidad) VALUES (1, 1, 2);
 INSERT INTO detalle_orden (id_orden, id_item, cantidad) VALUES (1, 2, 1);
 INSERT INTO detalle_orden (id_orden, id_item, cantidad) VALUES (2, 3, 10);
 
--- TABLA: auditoria (Independiente / Log)
-INSERT INTO auditoria (tabla_afectada, operacion, id_registro, valor_anterior, valor_nuevo, usuario_bd, fecha) 
-VALUES ('USUARIO', 'INSERT', NULL, 'Nuevo admin creado', USER, CURRENT_TIMESTAMP);
-INSERT INTO auditoria (tabla_afectada, operacion, id_registro, valor_anterior, valor_nuevo, usuario_bd, fecha) 
-VALUES ('ITEM', 'UPDATE', 'Precio: 15.00', 'Precio: 15.50', USER, CURRENT_TIMESTAMP);
-INSERT INTO auditoria (tabla_afectada, operacion, id_registro, valor_anterior, valor_nuevo, usuario_bd, fecha) 
-VALUES ('CLIENTE', 'DELETE', 'Cliente Antiguo', NULL, USER, CURRENT_TIMESTAMP);
+-- TABLA: auditoria (Independiente / Log, ahoirta solo para probar)
+INSERT INTO auditoria (
+    tabla_afectada,
+    operacion,
+    id_registro,
+    valor_anterior,
+    valor_nuevo,
+    usuario_bd,
+    fecha
+) VALUES (
+    'USUARIO',
+    'INSERT',
+    '1',
+    NULL,
+    'Nuevo admin creado',
+    USER,
+    CURRENT_TIMESTAMP
+);
 
+INSERT INTO auditoria (
+    tabla_afectada,
+    operacion,
+    id_registro,
+    valor_anterior,
+    valor_nuevo,
+    usuario_bd,
+    fecha
+) VALUES (
+    'ITEM',
+    'UPDATE',
+    '2',
+    'Precio: 15.00',
+    'Precio: 15.50',
+    USER,
+    CURRENT_TIMESTAMP
+);
 
+INSERT INTO auditoria (
+    tabla_afectada,
+    operacion,
+    id_registro,
+    valor_anterior,
+    valor_nuevo,
+    usuario_bd,
+    fecha
+) VALUES (
+    'CLIENTE',
+    'DELETE',
+    '3',
+    'Cliente Antiguo',
+    NULL,
+    USER,
+    CURRENT_TIMESTAMP
+);
 
 -- ============================================
 -- SELECTS DE PRUEBA

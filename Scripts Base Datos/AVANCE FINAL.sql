@@ -2341,3 +2341,235 @@ BEGIN
     CLOSE c_ordenes_rango;
 END;
 /
+
+-- ============================================================
+-- SECCIÓN 13: TRIGGERS
+-- ============================================================
+------------------------Cambios para Triggers-----------------------------------
+
+DROP TABLE auditoria CASCADE CONSTRAINTS;
+
+CREATE TABLE auditoria (
+    id_auditoria    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    tabla_afectada  VARCHAR2(100),
+    operacion       VARCHAR2(10),
+    id_registro     VARCHAR2(100),
+    valor_anterior  CLOB,
+    valor_nuevo     CLOB,
+    usuario_bd      VARCHAR2(100),
+    fecha           TIMESTAMP
+);
+-------------------Triggers-----------------------------------------------------
+
+CREATE OR REPLACE TRIGGER trg_aud_cliente
+AFTER INSERT OR UPDATE OR DELETE ON cliente
+FOR EACH ROW
+DECLARE
+    PRAGMA AUTONOMOUS_TRANSACTION;
+
+    v_operacion VARCHAR2(10);
+    v_anterior  CLOB;
+    v_nuevo     CLOB;
+BEGIN
+    IF INSERTING THEN
+        v_operacion := 'INSERT';
+
+        v_anterior := NULL;
+        v_nuevo := 'nombre=' || :NEW.nombre ||
+                   ', identificacion=' || :NEW.identificacion ||
+                   ', telefono=' || :NEW.telefono ||
+                   ', correo=' || :NEW.correo ||
+                   ', estado=' || :NEW.id_estado;
+
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'CLIENTE', v_operacion, :NEW.id_cliente,
+            v_anterior, v_nuevo, USER, SYSTIMESTAMP
+        );
+
+    ELSIF UPDATING THEN
+        v_operacion := 'UPDATE';
+
+        v_anterior := 'nombre=' || :OLD.nombre ||
+                      ', identificacion=' || :OLD.identificacion ||
+                      ', telefono=' || :OLD.telefono ||
+                      ', correo=' || :OLD.correo ||
+                      ', estado=' || :OLD.id_estado;
+
+        v_nuevo := 'nombre=' || :NEW.nombre ||
+                   ', identificacion=' || :NEW.identificacion ||
+                   ', telefono=' || :NEW.telefono ||
+                   ', correo=' || :NEW.correo ||
+                   ', estado=' || :NEW.id_estado;
+
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'CLIENTE', v_operacion, :NEW.id_cliente,
+            v_anterior, v_nuevo, USER, SYSTIMESTAMP
+        );
+
+    ELSIF DELETING THEN
+        v_operacion := 'DELETE';
+
+        v_anterior := 'nombre=' || :OLD.nombre ||
+                      ', identificacion=' || :OLD.identificacion ||
+                      ', telefono=' || :OLD.telefono ||
+                      ', correo=' || :OLD.correo ||
+                      ', estado=' || :OLD.id_estado;
+
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'CLIENTE', v_operacion, :OLD.id_cliente,
+            v_anterior, NULL, USER, SYSTIMESTAMP
+        );
+    END IF;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_aud_usuario
+AFTER INSERT OR UPDATE OR DELETE ON usuario
+FOR EACH ROW
+DECLARE
+    PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'USUARIO', 'INSERT', :NEW.id_usuario,
+            NULL,
+            'nombre=' || :NEW.nombre || ', correo=' || :NEW.correo,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF UPDATING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'USUARIO', 'UPDATE', :NEW.id_usuario,
+            'nombre=' || :OLD.nombre || ', correo=' || :OLD.correo,
+            'nombre=' || :NEW.nombre || ', correo=' || :NEW.correo,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF DELETING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'USUARIO', 'DELETE', :OLD.id_usuario,
+            'nombre=' || :OLD.nombre || ', correo=' || :OLD.correo,
+            NULL,
+            USER, SYSTIMESTAMP
+        );
+    END IF;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_aud_item
+AFTER INSERT OR UPDATE OR DELETE ON item
+FOR EACH ROW
+DECLARE
+    PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'ITEM', 'INSERT', :NEW.id_item,
+            NULL,
+            'nombre=' || :NEW.nombre || ', precio=' || :NEW.precio_unitario,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF UPDATING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'ITEM', 'UPDATE', :NEW.id_item,
+            'nombre=' || :OLD.nombre || ', precio=' || :OLD.precio_unitario,
+            'nombre=' || :NEW.nombre || ', precio=' || :NEW.precio_unitario,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF DELETING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'ITEM', 'DELETE', :OLD.id_item,
+            'nombre=' || :OLD.nombre,
+            NULL,
+            USER, SYSTIMESTAMP
+        );
+    END IF;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_aud_proveedor
+AFTER INSERT OR UPDATE OR DELETE ON proveedor
+FOR EACH ROW
+DECLARE
+    PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'PROVEEDOR', 'INSERT', :NEW.id_proveedor,
+            NULL,
+            'nombre=' || :NEW.nombre,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF UPDATING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'PROVEEDOR', 'UPDATE', :NEW.id_proveedor,
+            'nombre=' || :OLD.nombre,
+            'nombre=' || :NEW.nombre,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF DELETING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'PROVEEDOR', 'DELETE', :OLD.id_proveedor,
+            'nombre=' || :OLD.nombre,
+            NULL,
+            USER, SYSTIMESTAMP
+        );
+    END IF;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_aud_orden
+AFTER INSERT OR UPDATE OR DELETE ON orden
+FOR EACH ROW
+DECLARE
+    PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'ORDEN', 'INSERT', :NEW.id_orden,
+            NULL,
+            'cliente=' || :NEW.id_cliente || ', usuario=' || :NEW.id_usuario,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF UPDATING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'ORDEN', 'UPDATE', :NEW.id_orden,
+            'estado=' || :OLD.id_estado,
+            'estado=' || :NEW.id_estado,
+            USER, SYSTIMESTAMP
+        );
+
+    ELSIF DELETING THEN
+        INSERT INTO auditoria VALUES (
+            DEFAULT, 'ORDEN', 'DELETE', :OLD.id_orden,
+            'cliente=' || :OLD.id_cliente,
+            NULL,
+            USER, SYSTIMESTAMP
+        );
+    END IF;
+
+    COMMIT;
+END;
+/
+
+
+----------------Prueba Trigger-------------------------------------------------
+
+UPDATE cliente
+SET telefono = '9999-9999'
+WHERE id_cliente = 1;
+
+SELECT * FROM auditoria ORDER BY id_auditoria DESC;
