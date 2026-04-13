@@ -2,7 +2,7 @@ package com.proyectofinallenguajes;
 
 import com.proyectofinallenguajes.view.*;
 
-public class proyectoFinalLenguajes {
+public class ProyectoFinalLenguajes {
 
     public static void main(String[] args) {
 
