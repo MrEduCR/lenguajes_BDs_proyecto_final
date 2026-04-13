@@ -1787,8 +1787,207 @@ CREATE OR REPLACE PACKAGE BODY pkg_roles AS
 
 END pkg_roles;
 /
+
 -- ============================================================
--- SECCIÓN 11: CURSORES
+-- SECCIÓN 11: pkg_vistas
+-- ============================================================
+
+CREATE OR REPLACE PACKAGE pkg_vistas AS
+    PROCEDURE sp_stock_items(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_ordenes_detalle(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_detalle_ordenes(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_materias_primas(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_receta_items(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_usuarios(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_proveedores_activos(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_resumen_financiero_clientes(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_alerta_inventario(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_roles_usuarios(p_cursor OUT SYS_REFCURSOR);
+END pkg_vistas;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_vistas AS
+
+    -- Vista 1: Stock de items
+    PROCEDURE sp_stock_items(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                i.id_item,
+                i.nombre AS producto,
+                i.unidad_medida,
+                i.precio_unitario,
+                NVL(SUM(inv.cantidad), 0) AS stock_total,
+                e.nombre AS estado
+            FROM item i
+            LEFT JOIN inventario_de_items inv ON i.id_item = inv.id_item
+            LEFT JOIN estado e ON i.id_estado = e.id_estado
+            GROUP BY i.id_item, i.nombre, i.unidad_medida, i.precio_unitario, e.nombre
+            ORDER BY i.nombre;
+    END sp_stock_items;
+
+    -- Vista 2: Órdenes con datos del cliente y estado
+    PROCEDURE sp_ordenes_detalle(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                o.id_orden,
+                o.fecha,
+                c.nombre AS cliente,
+                c.telefono,
+                c.correo AS correo_cliente,
+                e.nombre AS estado_orden,
+                u.nombre AS atendido_por
+            FROM orden o
+            JOIN cliente c ON o.id_cliente = c.id_cliente
+            JOIN estado e ON o.id_estado = e.id_estado
+            JOIN usuario u ON o.id_usuario = u.id_usuario
+            ORDER BY o.fecha DESC;
+    END sp_ordenes_detalle;
+
+    -- Vista 3: Detalle completo de órdenes (líneas de pedido)
+    PROCEDURE sp_detalle_ordenes(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                d.id_detalle,
+                d.id_orden,
+                i.nombre AS producto,
+                d.cantidad,
+                i.precio_unitario,
+                (d.cantidad * i.precio_unitario) AS subtotal
+            FROM detalle_orden d
+            JOIN item i ON d.id_item = i.id_item
+            ORDER BY d.id_orden, d.id_detalle;
+    END sp_detalle_ordenes;
+
+    -- Vista 4: Materias primas con proveedor
+    PROCEDURE sp_materias_primas(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                mp.id_materia_prima,
+                mp.nombre_materia_prima,
+                mp.precio_referencia,
+                p.nombre AS proveedor,
+                p.telefono AS telefono_proveedor,
+                p.correo AS correo_proveedor
+            FROM materia_prima mp
+            JOIN proveedor p ON mp.id_proveedor = p.id_proveedor
+            ORDER BY p.nombre, mp.nombre_materia_prima;
+    END sp_materias_primas;
+
+    -- Vista 5: Receta de cada producto (materias primas que lo componen)
+    PROCEDURE sp_receta_items(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                i.id_item,
+                i.nombre AS producto,
+                mp.nombre_materia_prima,
+                pp.medida_materia_prima,
+                pp.unidad_medida
+            FROM pre_producto_item pp
+            JOIN item i ON pp.id_item = i.id_item
+            JOIN materia_prima mp ON pp.id_materia_prima = mp.id_materia_prima
+            ORDER BY i.nombre, mp.nombre_materia_prima;
+    END sp_receta_items;
+
+    -- Vista 6: Usuarios con su rol y estado
+    PROCEDURE sp_usuarios(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                u.id_usuario,
+                u.nombre,
+                u.correo,
+                r.nombre AS rol,
+                e.nombre AS estado
+            FROM usuario u
+            JOIN rol r ON u.id_rol = r.id_rol
+            JOIN estado e ON u.id_estado = e.id_estado
+            ORDER BY u.nombre;
+    END sp_usuarios;
+
+    -- Vista 7: Proveedores activos con cantidad de materias primas que suministran
+    PROCEDURE sp_proveedores_activos(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                p.id_proveedor,
+                p.nombre,
+                p.contacto,
+                p.telefono,
+                p.correo,
+                COUNT(mp.id_materia_prima) AS total_materias
+            FROM proveedor p
+            LEFT JOIN materia_prima mp ON p.id_proveedor = mp.id_proveedor
+            JOIN estado e ON p.id_estado = e.id_estado
+            WHERE UPPER(e.nombre) = 'ACTIVO'
+            GROUP BY p.id_proveedor, p.nombre, p.contacto, p.telefono, p.correo
+            ORDER BY p.nombre;
+    END sp_proveedores_activos;
+
+    -- Vista 8: Resumen financiero de órdenes por cliente
+    PROCEDURE sp_resumen_financiero_clientes(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                c.id_cliente,
+                c.nombre AS cliente,
+                COUNT(o.id_orden) AS total_ordenes,
+                NVL(SUM(d.cantidad * i.precio_unitario), 0) AS total_facturado
+            FROM cliente c
+            LEFT JOIN orden o ON c.id_cliente = o.id_cliente
+            LEFT JOIN detalle_orden d ON o.id_orden = d.id_orden
+            LEFT JOIN item i ON d.id_item = i.id_item
+            GROUP BY c.id_cliente, c.nombre
+            ORDER BY total_facturado DESC;
+    END sp_resumen_financiero_clientes;
+
+    -- Vista 9: Inventario con estado de alerta de stock
+    PROCEDURE sp_alerta_inventario(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                i.id_item,
+                i.nombre AS producto,
+                NVL(SUM(inv.cantidad), 0) AS stock_actual,
+                CASE
+                    WHEN NVL(SUM(inv.cantidad), 0) = 0 THEN 'SIN STOCK'
+                    WHEN NVL(SUM(inv.cantidad), 0) < 10 THEN 'STOCK BAJO'
+                    WHEN NVL(SUM(inv.cantidad), 0) < 50 THEN 'STOCK MEDIO'
+                    ELSE 'STOCK OK'
+                END AS alerta
+            FROM item i
+            LEFT JOIN inventario_de_items inv ON i.id_item = inv.id_item
+            GROUP BY i.id_item, i.nombre
+            ORDER BY i.nombre;
+    END sp_alerta_inventario;
+
+    -- Vista 10: Roles con cantidad de usuarios asignados
+    PROCEDURE sp_roles_usuarios(p_cursor OUT SYS_REFCURSOR) AS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT
+                r.id_rol,
+                r.nombre AS rol,
+                r.descripcion,
+                e.nombre AS estado,
+                COUNT(u.id_usuario) AS total_usuarios
+            FROM rol r
+            LEFT JOIN usuario u ON r.id_rol = u.id_rol
+            JOIN estado e ON r.id_estado = e.id_estado
+            GROUP BY r.id_rol, r.nombre, r.descripcion, e.nombre
+            ORDER BY r.nombre;
+    END sp_roles_usuarios;
+
+END pkg_vistas;
+/
+
+COMMIT;
+-- ============================================================
+-- SECCIÓN 12: CURSORES
 -- ============================================================
 
 -- Cursor 1: Listar todos los items activos con su stock
