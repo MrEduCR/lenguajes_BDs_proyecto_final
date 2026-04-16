@@ -6,54 +6,94 @@ import javax.swing.*;
 public class FrmClientes extends JFrame {
 
     private JTable tabla;
-    private JTextField txtNombre, txtId, txtTelefono, txtCorreo, txtIdentificacion;
-    private JButton btnCargar, btnInsertar, btnActualizar, btnEliminar;
+
+    private JTextField txtId;
+    private JTextField txtNombre;
+    private JTextField txtIdentificacion;
+    private JTextField txtTelefono;
+    private JTextField txtCorreo;
+
+    private JButton btnCargar;
+    private JButton btnInsertar;
+    private JButton btnActualizar;
+    private JButton btnEliminar;
+    private JButton btnLimpiar;
 
     private clienteDAO dao = new clienteDAO();
 
     public FrmClientes() {
 
-        setTitle("CRUD Clientes");
-        setSize(900, 500);
+        setTitle("Gestión de Clientes");
+        setSize(950, 550);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
+        setLocationRelativeTo(null);
 
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBounds(20, 200, 850, 200);
+        scroll.setBounds(20, 220, 890, 250);
 
+        
+        JLabel lblId = new JLabel("ID Cliente:");
+        JLabel lblNombre = new JLabel("Nombre:");
+        JLabel lblIdentificacion = new JLabel("Identificación:");
+        JLabel lblTelefono = new JLabel("Teléfono:");
+        JLabel lblCorreo = new JLabel("Correo:");
+
+        lblId.setBounds(20, 20, 100, 20);
+        lblNombre.setBounds(140, 20, 100, 20);
+        lblIdentificacion.setBounds(310, 20, 100, 20);
+        lblTelefono.setBounds(480, 20, 100, 20);
+        lblCorreo.setBounds(650, 20, 100, 20);
+
+        // TEXTFIELDS
         txtId = new JTextField();
         txtNombre = new JTextField();
         txtIdentificacion = new JTextField();
         txtTelefono = new JTextField();
         txtCorreo = new JTextField();
 
-        txtId.setBounds(20, 20, 100, 25);
-        txtNombre.setBounds(140, 20, 150, 25);
-        txtIdentificacion.setBounds(310, 20, 150, 25);
-        txtTelefono.setBounds(480, 20, 150, 25);
-        txtCorreo.setBounds(650, 20, 200, 25);
+        txtId.setBounds(20, 45, 100, 25);
+        txtNombre.setBounds(140, 45, 150, 25);
+        txtIdentificacion.setBounds(310, 45, 150, 25);
+        txtTelefono.setBounds(480, 45, 150, 25);
+        txtCorreo.setBounds(650, 45, 200, 25);
 
+        txtId.setEditable(false);
+
+        // BOTONES
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
         btnEliminar = new JButton("Eliminar");
+        btnLimpiar = new JButton("Limpiar");
 
-        btnCargar.setBounds(20, 100, 120, 30);
-        btnInsertar.setBounds(160, 100, 120, 30);
-        btnActualizar.setBounds(300, 100, 120, 30);
-        btnEliminar.setBounds(440, 100, 120, 30);
+        btnCargar.setBounds(20, 120, 120, 30);
+        btnInsertar.setBounds(160, 120, 120, 30);
+        btnActualizar.setBounds(300, 120, 120, 30);
+        btnEliminar.setBounds(440, 120, 120, 30);
+        btnLimpiar.setBounds(580, 120, 120, 30);
 
+        // ADD COMPONENTS
         add(scroll);
+
+        add(lblId);
+        add(lblNombre);
+        add(lblIdentificacion);
+        add(lblTelefono);
+        add(lblCorreo);
+
         add(txtId);
         add(txtNombre);
         add(txtIdentificacion);
         add(txtTelefono);
         add(txtCorreo);
+
         add(btnCargar);
         add(btnInsertar);
         add(btnActualizar);
         add(btnEliminar);
+        add(btnLimpiar);
 
         // EVENTOS
 
@@ -65,9 +105,12 @@ public class FrmClientes extends JFrame {
                     txtIdentificacion.getText(),
                     txtTelefono.getText(),
                     txtCorreo.getText(),
-                    1 // estado activo
+                    1
             );
+
+            JOptionPane.showMessageDialog(this, "Cliente insertado correctamente.");
             cargar();
+            limpiarCampos();
         });
 
         btnActualizar.addActionListener(e -> {
@@ -77,21 +120,29 @@ public class FrmClientes extends JFrame {
                     txtTelefono.getText(),
                     txtCorreo.getText()
             );
+
+            JOptionPane.showMessageDialog(this, "Cliente actualizado correctamente.");
             cargar();
+            limpiarCampos();
         });
 
         btnEliminar.addActionListener(e -> {
             dao.eliminarCliente(
                     Integer.parseInt(txtId.getText())
             );
+
+            JOptionPane.showMessageDialog(this, "Cliente eliminado correctamente.");
             cargar();
+            limpiarCampos();
         });
 
-        // CLICK EN TABLA → llenar inputs
+        btnLimpiar.addActionListener(e -> limpiarCampos());
 
+        // CLICK EN TABLA → llenar inputs
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
+
                 if (fila != -1) {
                     txtId.setText(tabla.getValueAt(fila, 0).toString());
                     txtNombre.setText(tabla.getValueAt(fila, 1).toString());
@@ -101,9 +152,20 @@ public class FrmClientes extends JFrame {
                 }
             }
         });
+
+        cargar();
     }
 
     private void cargar() {
-        tabla.setModel(new clienteDAO().listarClientes());
+        tabla.setModel(dao.listarClientes());
+    }
+
+    private void limpiarCampos() {
+        txtId.setText("");
+        txtNombre.setText("");
+        txtIdentificacion.setText("");
+        txtTelefono.setText("");
+        txtCorreo.setText("");
+        tabla.clearSelection();
     }
 }

@@ -26,30 +26,47 @@ public class FrmItems extends JFrame {
     private final itemDAO dao = new itemDAO();
 
     public FrmItems() {
+
         setTitle("CRUD Items");
         setSize(1000, 500);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
 
+        // TABLA
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 200, 940, 220);
 
+        // LABELS
+        JLabel lblId = new JLabel("ID:");
+        JLabel lblNombre = new JLabel("Nombre:");
+        JLabel lblDescripcion = new JLabel("Descripción:");
+        JLabel lblUnidadMedida = new JLabel("Unidad Medida:");
+        JLabel lblPrecio = new JLabel("Precio:");
+
+        lblId.setBounds(20, 20, 80, 20);
+        lblNombre.setBounds(120, 20, 100, 20);
+        lblDescripcion.setBounds(300, 20, 100, 20);
+        lblUnidadMedida.setBounds(520, 20, 120, 20);
+        lblPrecio.setBounds(660, 20, 100, 20);
+
+        // TEXTFIELDS
         txtId = new JTextField();
         txtNombre = new JTextField();
         txtDescripcion = new JTextField();
         txtUnidadMedida = new JTextField();
         txtPrecio = new JTextField();
 
-        txtId.setBounds(20, 20, 80, 25);
-        txtNombre.setBounds(120, 20, 160, 25);
-        txtDescripcion.setBounds(300, 20, 200, 25);
-        txtUnidadMedida.setBounds(520, 20, 120, 25);
-        txtPrecio.setBounds(660, 20, 120, 25);
+        txtId.setBounds(20, 45, 80, 25);
+        txtNombre.setBounds(120, 45, 160, 25);
+        txtDescripcion.setBounds(300, 45, 200, 25);
+        txtUnidadMedida.setBounds(520, 45, 120, 25);
+        txtPrecio.setBounds(660, 45, 120, 25);
 
         txtId.setEditable(false);
 
+        // BOTONES
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -62,26 +79,32 @@ public class FrmItems extends JFrame {
         btnEliminar.setBounds(440, 100, 120, 30);
         btnLimpiar.setBounds(580, 100, 120, 30);
 
+        // AGREGAR COMPONENTES
         add(scroll);
+
+        add(lblId);
+        add(lblNombre);
+        add(lblDescripcion);
+        add(lblUnidadMedida);
+        add(lblPrecio);
+
         add(txtId);
         add(txtNombre);
         add(txtDescripcion);
         add(txtUnidadMedida);
         add(txtPrecio);
+
         add(btnCargar);
         add(btnInsertar);
         add(btnActualizar);
         add(btnEliminar);
         add(btnLimpiar);
 
+        // EVENTOS
         btnCargar.addActionListener(e -> cargar());
-
         btnInsertar.addActionListener(e -> insertarItem());
-
         btnActualizar.addActionListener(e -> actualizarItem());
-
         btnEliminar.addActionListener(e -> eliminarItem());
-
         btnLimpiar.addActionListener(e -> limpiarCampos());
 
         tabla.getSelectionModel().addListSelectionListener(e -> {
@@ -104,7 +127,11 @@ public class FrmItems extends JFrame {
         try {
             List<item> lista = dao.listarItems();
 
-            String[] columnas = {"ID", "Nombre", "Descripción", "Por unidad o por kilo", "Precio", "Estado"};
+            String[] columnas = {
+                "ID", "Nombre", "Descripción",
+                "Unidad Medida", "Precio", "Estado"
+            };
+
             DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -113,15 +140,14 @@ public class FrmItems extends JFrame {
             };
 
             for (item obj : lista) {
-                Object[] fila = {
+                modelo.addRow(new Object[]{
                     obj.getId_item(),
                     obj.getNombre(),
                     obj.getDescripcion(),
                     obj.getUnidad_medida(),
                     obj.getPrecio_unitario(),
                     obj.getEstado()
-                };
-                modelo.addRow(fila);
+                });
             }
 
             tabla.setModel(modelo);
@@ -135,18 +161,6 @@ public class FrmItems extends JFrame {
     }
 
     private void insertarItem() {
-        if (txtNombre.getText().trim().isEmpty()
-                || txtDescripcion.getText().trim().isEmpty()
-                || txtUnidadMedida.getText().trim().isEmpty()
-                || txtPrecio.getText().trim().isEmpty()) {
-
-            JOptionPane.showMessageDialog(this,
-                    "Debe completar todos los campos.",
-                    "Validación",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         try {
             BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
 
@@ -164,28 +178,13 @@ public class FrmItems extends JFrame {
             cargar();
             limpiarCampos();
 
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "El precio debe ser numérico.",
-                    "Validación",
-                    JOptionPane.WARNING_MESSAGE);
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al insertar item:\n" + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Error al insertar item:\n" + e.getMessage());
         }
     }
 
     private void actualizarItem() {
-        if (txtId.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Seleccione un item de la tabla.",
-                    "Validación",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
         try {
             BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
 
@@ -195,54 +194,31 @@ public class FrmItems extends JFrame {
                     precio
             );
 
-            JOptionPane.showMessageDialog(this, "Item actualizado correctamente.");
+            JOptionPane.showMessageDialog(this,
+                    "Item actualizado correctamente.");
+
             cargar();
             limpiarCampos();
 
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "El precio debe ser numérico.",
-                    "Validación",
-                    JOptionPane.WARNING_MESSAGE);
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al actualizar item:\n" + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Error al actualizar item:\n" + e.getMessage());
         }
     }
 
     private void eliminarItem() {
-        if (txtId.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Seleccione un item de la tabla.",
-                    "Validación",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int confirmacion = JOptionPane.showConfirmDialog(
-                this,
-                "¿Desea eliminar lógicamente este item?",
-                "Confirmar",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirmacion != JOptionPane.YES_OPTION) {
-            return;
-        }
-
         try {
             dao.eliminarItem(Integer.parseInt(txtId.getText().trim()));
-            JOptionPane.showMessageDialog(this, "Item eliminado correctamente.");
+
+            JOptionPane.showMessageDialog(this,
+                    "Item eliminado correctamente.");
+
             cargar();
             limpiarCampos();
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "Error al eliminar item:\n" + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Error al eliminar item:\n" + e.getMessage());
         }
     }
 

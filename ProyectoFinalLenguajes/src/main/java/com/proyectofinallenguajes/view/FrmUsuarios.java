@@ -32,11 +32,22 @@ public class FrmUsuarios extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
+        // 🔹 LABELS
+        JLabel lblId = new JLabel("ID");
+        JLabel lblNombre = new JLabel("Nombre");
+        JLabel lblCorreo = new JLabel("Correo");
+        JLabel lblContrasena = new JLabel("Contraseña");
+        JLabel lblRol = new JLabel("ID Rol");
+        JLabel lblEstado = new JLabel("ID Estado");
 
-        tabla = new JTable();
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBounds(20, 210, 940, 230);
+        lblId.setBounds(20, 0, 80, 20);
+        lblNombre.setBounds(120, 0, 150, 20);
+        lblCorreo.setBounds(290, 0, 150, 20);
+        lblContrasena.setBounds(460, 0, 150, 20);
+        lblRol.setBounds(630, 0, 100, 20);
+        lblEstado.setBounds(750, 0, 100, 20);
 
+        // 🔹 CAMPOS
         txtId = new JTextField();
         txtNombre = new JTextField();
         txtCorreo = new JTextField();
@@ -53,6 +64,12 @@ public class FrmUsuarios extends JFrame {
 
         txtId.setEditable(false);
 
+        // 🔹 TABLA
+        tabla = new JTable();
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBounds(20, 210, 940, 230);
+
+        // 🔹 BOTONES
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -65,7 +82,13 @@ public class FrmUsuarios extends JFrame {
         btnEliminar.setBounds(440, 100, 120, 30);
         btnLimpiar.setBounds(580, 100, 120, 30);
 
-        add(scroll);
+        // 🔹 ADD
+        add(lblId);
+        add(lblNombre);
+        add(lblCorreo);
+        add(lblContrasena);
+        add(lblRol);
+        add(lblEstado);
 
         add(txtId);
         add(txtNombre);
@@ -74,19 +97,21 @@ public class FrmUsuarios extends JFrame {
         add(txtIdRol);
         add(txtIdEstado);
 
+        add(scroll);
+
         add(btnCargar);
         add(btnInsertar);
         add(btnActualizar);
         add(btnEliminar);
         add(btnLimpiar);
 
+        // 🔹 EVENTOS
         btnCargar.addActionListener(e -> cargar());
         btnInsertar.addActionListener(e -> insertar());
         btnActualizar.addActionListener(e -> actualizar());
         btnEliminar.addActionListener(e -> eliminar());
         btnLimpiar.addActionListener(e -> limpiar());
 
-      
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
@@ -105,8 +130,6 @@ public class FrmUsuarios extends JFrame {
                             txtCorreo.setText(u.getCorreo());
                             txtIdRol.setText(String.valueOf(u.getId_rol()));
                             txtIdEstado.setText(String.valueOf(u.getId_estado()));
-
-                         
                             txtContrasena.setText("");
                         }
 
@@ -126,7 +149,12 @@ public class FrmUsuarios extends JFrame {
             List<usuario> lista = dao.listarUsuarios();
 
             String[] columnas = {"ID", "Nombre", "Rol", "Estado"};
-            DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
+            DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
             for (usuario u : lista) {
                 modelo.addRow(new Object[]{
@@ -146,19 +174,31 @@ public class FrmUsuarios extends JFrame {
     }
 
     private void insertar() {
+        if (txtNombre.getText().trim().isEmpty()
+                || txtCorreo.getText().trim().isEmpty()
+                || txtContrasena.getText().trim().isEmpty()
+                || txtIdRol.getText().trim().isEmpty()
+                || txtIdEstado.getText().trim().isEmpty()) {
+
+            JOptionPane.showMessageDialog(this, "Complete todos los campos.");
+            return;
+        }
+
         try {
             dao.insertarUsuario(
-                    txtNombre.getText(),
-                    txtCorreo.getText(),
-                    txtContrasena.getText(),
-                    Integer.parseInt(txtIdRol.getText()),
-                    Integer.parseInt(txtIdEstado.getText())
+                    txtNombre.getText().trim(),
+                    txtCorreo.getText().trim(),
+                    txtContrasena.getText().trim(),
+                    Integer.parseInt(txtIdRol.getText().trim()),
+                    Integer.parseInt(txtIdEstado.getText().trim())
             );
 
             JOptionPane.showMessageDialog(this, "Insertado");
             cargar();
             limpiar();
 
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID Rol y Estado deben ser números.");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "Error:\n" + e.getMessage());
@@ -166,18 +206,25 @@ public class FrmUsuarios extends JFrame {
     }
 
     private void actualizar() {
+        if (txtId.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione un usuario.");
+            return;
+        }
+
         try {
             dao.actualizarUsuario(
-                    Integer.parseInt(txtId.getText()),
-                    txtNombre.getText(),
-                    txtCorreo.getText(),
-                    Integer.parseInt(txtIdRol.getText())
+                    Integer.parseInt(txtId.getText().trim()),
+                    txtNombre.getText().trim(),
+                    txtCorreo.getText().trim(),
+                    Integer.parseInt(txtIdRol.getText().trim())
             );
 
             JOptionPane.showMessageDialog(this, "Actualizado");
             cargar();
             limpiar();
 
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID Rol debe ser número.");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "Error:\n" + e.getMessage());
@@ -185,9 +232,23 @@ public class FrmUsuarios extends JFrame {
     }
 
     private void eliminar() {
+        if (txtId.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione un usuario.");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Eliminar usuario?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) return;
+
         try {
             dao.eliminarUsuario(
-                    Integer.parseInt(txtId.getText())
+                    Integer.parseInt(txtId.getText().trim())
             );
 
             JOptionPane.showMessageDialog(this, "Eliminado");
@@ -207,5 +268,6 @@ public class FrmUsuarios extends JFrame {
         txtContrasena.setText("");
         txtIdRol.setText("");
         txtIdEstado.setText("");
+        tabla.clearSelection();
     }
 }

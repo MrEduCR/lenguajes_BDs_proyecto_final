@@ -30,10 +30,16 @@ public class FrmRoles extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
-        tabla = new JTable();
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBounds(20, 180, 780, 220);
+ 
+        JLabel lblId = new JLabel("ID");
+        JLabel lblNombre = new JLabel("Nombre");
+        JLabel lblDescripcion = new JLabel("Descripción");
 
+        lblId.setBounds(20, 0, 80, 20);
+        lblNombre.setBounds(120, 0, 180, 20);
+        lblDescripcion.setBounds(320, 0, 200, 20);
+
+        
         txtId = new JTextField();
         txtNombre = new JTextField();
         txtDescripcion = new JTextField();
@@ -44,6 +50,11 @@ public class FrmRoles extends JFrame {
 
         txtId.setEditable(false);
 
+        tabla = new JTable();
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBounds(20, 180, 780, 220);
+
+      
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -56,15 +67,23 @@ public class FrmRoles extends JFrame {
         btnEliminar.setBounds(400, 80, 100, 30);
         btnLimpiar.setBounds(520, 80, 100, 30);
 
-        add(scroll);
+        
+        add(lblId);
+        add(lblNombre);
+        add(lblDescripcion);
+
         add(txtId);
         add(txtNombre);
         add(txtDescripcion);
+
+        add(scroll);
+
         add(btnCargar);
         add(btnInsertar);
         add(btnActualizar);
         add(btnEliminar);
         add(btnLimpiar);
+
 
         btnCargar.addActionListener(e -> cargar());
         btnInsertar.addActionListener(e -> insertar());
@@ -91,7 +110,12 @@ public class FrmRoles extends JFrame {
             List<rol> lista = dao.listarRoles();
 
             String[] columnas = {"ID", "Nombre", "Descripción", "Estado"};
-            DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
+            DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
             for (rol r : lista) {
                 modelo.addRow(new Object[]{
@@ -110,37 +134,71 @@ public class FrmRoles extends JFrame {
     }
 
     private void insertar() {
+        if (txtNombre.getText().trim().isEmpty()
+                || txtDescripcion.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete todos los campos.");
+            return;
+        }
+
         try {
-            dao.insertarRol(txtNombre.getText(), txtDescripcion.getText(), 1);
-            JOptionPane.showMessageDialog(this, "Insertado");
+            int id = dao.insertarRol(
+                    txtNombre.getText().trim(),
+                    txtDescripcion.getText().trim(),
+                    1
+            );
+
+            JOptionPane.showMessageDialog(this, "Insertado. ID: " + id);
             cargar();
             limpiar();
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
         }
     }
 
     private void actualizar() {
+        if (txtId.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione un rol.");
+            return;
+        }
+
         try {
             dao.actualizarRol(
-                    Integer.parseInt(txtId.getText()),
-                    txtNombre.getText(),
-                    txtDescripcion.getText()
+                    Integer.parseInt(txtId.getText().trim()),
+                    txtNombre.getText().trim(),
+                    txtDescripcion.getText().trim()
             );
+
             JOptionPane.showMessageDialog(this, "Actualizado");
             cargar();
             limpiar();
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
         }
     }
 
     private void eliminar() {
+        if (txtId.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Seleccione un rol.");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Eliminar este rol?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) return;
+
         try {
-            dao.eliminarRol(Integer.parseInt(txtId.getText()));
+            dao.eliminarRol(Integer.parseInt(txtId.getText().trim()));
             JOptionPane.showMessageDialog(this, "Eliminado");
             cargar();
             limpiar();
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
         }
@@ -150,5 +208,6 @@ public class FrmRoles extends JFrame {
         txtId.setText("");
         txtNombre.setText("");
         txtDescripcion.setText("");
+        tabla.clearSelection();
     }
 }

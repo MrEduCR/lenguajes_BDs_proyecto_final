@@ -19,6 +19,14 @@ public class FrmPreProductoItem extends JFrame {
     private JTextField txtUnidadMedida;
     private JTextField txtFiltroItem;
 
+
+    private JLabel lblIdPreProducto;
+    private JLabel lblIdItem;
+    private JLabel lblIdMateriaPrima;
+    private JLabel lblMedida;
+    private JLabel lblUnidadMedida;
+    private JLabel lblFiltroItem;
+
     private JButton btnCargar;
     private JButton btnBuscarPorItem;
     private JButton btnInsertar;
@@ -34,9 +42,25 @@ public class FrmPreProductoItem extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
+
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 210, 960, 230);
+
+
+        lblIdPreProducto = new JLabel("ID Receta:");
+        lblIdItem = new JLabel("ID Item:");
+        lblIdMateriaPrima = new JLabel("ID Materia Prima:");
+        lblMedida = new JLabel("Medida:");
+        lblUnidadMedida = new JLabel("Unidad:");
+        lblFiltroItem = new JLabel("Filtrar por Item:");
+
+        lblIdPreProducto.setBounds(20, 20, 100, 20);
+        lblIdItem.setBounds(140, 20, 100, 20);
+        lblIdMateriaPrima.setBounds(260, 20, 140, 20);
+        lblMedida.setBounds(420, 20, 100, 20);
+        lblUnidadMedida.setBounds(540, 20, 100, 20);
+        lblFiltroItem.setBounds(20, 80, 120, 20);
 
         txtIdPreProducto = new JTextField();
         txtIdItem = new JTextField();
@@ -45,12 +69,12 @@ public class FrmPreProductoItem extends JFrame {
         txtUnidadMedida = new JTextField();
         txtFiltroItem = new JTextField();
 
-        txtIdPreProducto.setBounds(20, 20, 100, 25);
-        txtIdItem.setBounds(140, 20, 100, 25);
-        txtIdMateriaPrima.setBounds(260, 20, 120, 25);
-        txtMedida.setBounds(400, 20, 120, 25);
-        txtUnidadMedida.setBounds(540, 20, 140, 25);
-        txtFiltroItem.setBounds(20, 100, 120, 25);
+        txtIdPreProducto.setBounds(20, 45, 100, 25);
+        txtIdItem.setBounds(140, 45, 100, 25);
+        txtIdMateriaPrima.setBounds(260, 45, 120, 25);
+        txtMedida.setBounds(420, 45, 100, 25);
+        txtUnidadMedida.setBounds(540, 45, 120, 25);
+        txtFiltroItem.setBounds(20, 105, 120, 25);
 
         txtIdPreProducto.setEditable(false);
 
@@ -66,7 +90,15 @@ public class FrmPreProductoItem extends JFrame {
         btnEliminar.setBounds(610, 100, 120, 30);
         btnLimpiar.setBounds(750, 100, 120, 30);
 
+
         add(scroll);
+        add(lblIdPreProducto);
+        add(lblIdItem);
+        add(lblIdMateriaPrima);
+        add(lblMedida);
+        add(lblUnidadMedida);
+        add(lblFiltroItem);
+
         add(txtIdPreProducto);
         add(txtIdItem);
         add(txtIdMateriaPrima);
@@ -97,19 +129,28 @@ public class FrmPreProductoItem extends JFrame {
     }
 
     private void limpiarTabla() {
-        String[] columnas = {"ID Receta", "Producto", "Materia Prima", "Medida", "Unidad", "Precio Referencia"};
+        String[] columnas = {
+            "ID Receta",
+            "Producto",
+            "Materia Prima",
+            "Medida",
+            "Unidad",
+            "Precio Referencia"
+        };
+
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+
         tabla.setModel(modelo);
     }
 
     private void buscarPorItem() {
         if (txtFiltroItem.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese un ID de item para consultar la receta.");
+            JOptionPane.showMessageDialog(this, "Ingrese un ID de item.");
             return;
         }
 
@@ -117,7 +158,15 @@ public class FrmPreProductoItem extends JFrame {
             int idItem = Integer.parseInt(txtFiltroItem.getText().trim());
             List<preProductoItem> lista = dao.listarReceta(idItem);
 
-            String[] columnas = {"ID Receta", "Producto", "Materia Prima", "Medida", "Unidad", "Precio Referencia"};
+            String[] columnas = {
+                "ID Receta",
+                "Producto",
+                "Materia Prima",
+                "Medida",
+                "Unidad",
+                "Precio Referencia"
+            };
+
             DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -139,10 +188,10 @@ public class FrmPreProductoItem extends JFrame {
             tabla.setModel(modelo);
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El ID item debe ser numérico.");
+            JOptionPane.showMessageDialog(this, "El ID debe ser numérico.");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
-                    "Error al listar receta:\n" + e.getMessage(),
+                    "Error:\n" + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -153,7 +202,8 @@ public class FrmPreProductoItem extends JFrame {
                 || txtIdMateriaPrima.getText().trim().isEmpty()
                 || txtMedida.getText().trim().isEmpty()
                 || txtUnidadMedida.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete item, materia prima, medida y unidad.");
+
+            JOptionPane.showMessageDialog(this, "Complete todos los campos.");
             return;
         }
 
@@ -164,16 +214,17 @@ public class FrmPreProductoItem extends JFrame {
 
             dao.insertarReceta(idItem, idMateriaPrima, medida, txtUnidadMedida.getText().trim());
 
-            JOptionPane.showMessageDialog(this, "Línea de receta insertada correctamente.");
+            JOptionPane.showMessageDialog(this, "Insertado correctamente.");
+
             txtFiltroItem.setText(String.valueOf(idItem));
             buscarPorItem();
             limpiarCampos();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Item, materia prima y medida deben ser numéricos.");
+            JOptionPane.showMessageDialog(this, "Valores numéricos inválidos.");
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
-                    "Error al insertar receta:\n" + e.getMessage(),
+                    "Error:\n" + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -181,26 +232,20 @@ public class FrmPreProductoItem extends JFrame {
 
     private void eliminar() {
         if (txtIdPreProducto.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Seleccione una línea de receta.");
+            JOptionPane.showMessageDialog(this, "Seleccione una fila.");
             return;
         }
 
-        int confirmacion = JOptionPane.showConfirmDialog(
-                this,
-                "¿Desea eliminar esta línea de receta?",
-                "Confirmar",
-                JOptionPane.YES_NO_OPTION
-        );
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "¿Eliminar registro?", "Confirmar", JOptionPane.YES_NO_OPTION);
 
-        if (confirmacion != JOptionPane.YES_OPTION) {
-            return;
-        }
+        if (confirm != JOptionPane.YES_OPTION) return;
 
         try {
-            int idPreProducto = Integer.parseInt(txtIdPreProducto.getText().trim());
-            dao.eliminarReceta(idPreProducto);
+            int id = Integer.parseInt(txtIdPreProducto.getText().trim());
+            dao.eliminarReceta(id);
 
-            JOptionPane.showMessageDialog(this, "Línea de receta eliminada correctamente.");
+            JOptionPane.showMessageDialog(this, "Eliminado.");
 
             if (!txtFiltroItem.getText().trim().isEmpty()) {
                 buscarPorItem();
@@ -212,7 +257,7 @@ public class FrmPreProductoItem extends JFrame {
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
-                    "Error al eliminar receta:\n" + e.getMessage(),
+                    "Error:\n" + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }

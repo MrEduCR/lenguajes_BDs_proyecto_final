@@ -16,6 +16,12 @@ public class FrmOrdenes extends JFrame {
     private JTextField txtIdUsuario;
     private JTextField txtIdEstado;
 
+    // Labels descriptivos
+    private JLabel lblIdOrden;
+    private JLabel lblIdCliente;
+    private JLabel lblIdUsuario;
+    private JLabel lblIdEstado;
+
     private JButton btnCargar;
     private JButton btnCrear;
     private JButton btnFinalizar;
@@ -26,28 +32,50 @@ public class FrmOrdenes extends JFrame {
     private final ordenDAO dao = new ordenDAO();
 
     public FrmOrdenes() {
-        setTitle("CRUD Ordenes");
+        setTitle("CRUD Órdenes");
         setSize(1050, 520);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
 
+        // =========================
+        // TABLA
+        // =========================
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 210, 990, 230);
 
+        // =========================
+        // LABELS
+        // =========================
+        lblIdOrden = new JLabel("ID Orden:");
+        lblIdCliente = new JLabel("ID Cliente:");
+        lblIdUsuario = new JLabel("ID Usuario:");
+        lblIdEstado = new JLabel("ID Estado:");
+
+        lblIdOrden.setBounds(20, 20, 100, 20);
+        lblIdCliente.setBounds(140, 20, 100, 20);
+        lblIdUsuario.setBounds(260, 20, 100, 20);
+        lblIdEstado.setBounds(380, 20, 100, 20);
+
+        // =========================
+        // TEXTFIELDS
+        // =========================
         txtIdOrden = new JTextField();
         txtIdCliente = new JTextField();
         txtIdUsuario = new JTextField();
         txtIdEstado = new JTextField();
 
-        txtIdOrden.setBounds(20, 20, 100, 25);
-        txtIdCliente.setBounds(140, 20, 100, 25);
-        txtIdUsuario.setBounds(260, 20, 100, 25);
-        txtIdEstado.setBounds(380, 20, 100, 25);
+        txtIdOrden.setBounds(20, 45, 100, 25);
+        txtIdCliente.setBounds(140, 45, 100, 25);
+        txtIdUsuario.setBounds(260, 45, 100, 25);
+        txtIdEstado.setBounds(380, 45, 100, 25);
 
         txtIdOrden.setEditable(false);
 
+        // =========================
+        // BOTONES
+        // =========================
         btnCargar = new JButton("Cargar");
         btnCrear = new JButton("Crear orden");
         btnFinalizar = new JButton("Finalizar");
@@ -62,7 +90,16 @@ public class FrmOrdenes extends JFrame {
         btnPendientes.setBounds(600, 100, 120, 30);
         btnLimpiar.setBounds(740, 100, 120, 30);
 
+        // =========================
+        // ADD COMPONENTS
+        // =========================
         add(scroll);
+
+        add(lblIdOrden);
+        add(lblIdCliente);
+        add(lblIdUsuario);
+        add(lblIdEstado);
+
         add(txtIdOrden);
         add(txtIdCliente);
         add(txtIdUsuario);
@@ -75,12 +112,17 @@ public class FrmOrdenes extends JFrame {
         add(btnPendientes);
         add(btnLimpiar);
 
+        // =========================
+        // EVENTOS
+        // =========================
         btnCargar.addActionListener(e -> cargar());
         btnCrear.addActionListener(e -> crearOrden());
         btnFinalizar.addActionListener(e -> finalizarOrden());
         btnCancelar.addActionListener(e -> cancelarOrden());
         btnPendientes.addActionListener(e -> mostrarPendientes());
         btnLimpiar.addActionListener(e -> limpiarCampos());
+
+        // Click en tabla
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
@@ -114,7 +156,15 @@ public class FrmOrdenes extends JFrame {
         try {
             List<orden> lista = dao.listarOrdenes();
 
-            String[] columnas = { "ID Orden", "Fecha", "Cliente", "Usuario", "Estado", "Total" };
+            String[] columnas = {
+                    "ID Orden",
+                    "Fecha",
+                    "Cliente",
+                    "Usuario",
+                    "Estado",
+                    "Total"
+            };
+
             DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -123,7 +173,7 @@ public class FrmOrdenes extends JFrame {
             };
 
             for (orden obj : lista) {
-                modelo.addRow(new Object[] {
+                modelo.addRow(new Object[]{
                         obj.getId_orden(),
                         obj.getFecha(),
                         obj.getCliente(),
@@ -147,7 +197,9 @@ public class FrmOrdenes extends JFrame {
         if (txtIdCliente.getText().trim().isEmpty()
                 || txtIdUsuario.getText().trim().isEmpty()
                 || txtIdEstado.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete cliente, usuario y estado.");
+
+            JOptionPane.showMessageDialog(this,
+                    "Complete cliente, usuario y estado.");
             return;
         }
 
@@ -185,7 +237,9 @@ public class FrmOrdenes extends JFrame {
             int idOrden = Integer.parseInt(txtIdOrden.getText().trim());
             dao.finalizarOrden(idOrden);
 
-            JOptionPane.showMessageDialog(this, "Orden finalizada correctamente.");
+            JOptionPane.showMessageDialog(this,
+                    "Orden finalizada correctamente.");
+
             cargar();
             limpiarCampos();
 
@@ -207,7 +261,8 @@ public class FrmOrdenes extends JFrame {
                 this,
                 "¿Desea cancelar esta orden?",
                 "Confirmar",
-                JOptionPane.YES_NO_OPTION);
+                JOptionPane.YES_NO_OPTION
+        );
 
         if (confirmacion != JOptionPane.YES_OPTION) {
             return;
@@ -217,7 +272,9 @@ public class FrmOrdenes extends JFrame {
             int idOrden = Integer.parseInt(txtIdOrden.getText().trim());
             dao.cancelarOrden(idOrden);
 
-            JOptionPane.showMessageDialog(this, "Orden cancelada correctamente.");
+            JOptionPane.showMessageDialog(this,
+                    "Orden cancelada correctamente.");
+
             cargar();
             limpiarCampos();
 
@@ -232,8 +289,10 @@ public class FrmOrdenes extends JFrame {
     private void mostrarPendientes() {
         try {
             int total = dao.totalOrdenesPendientes();
+
             JOptionPane.showMessageDialog(this,
                     "Total de órdenes pendientes: " + total);
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Error al consultar órdenes pendientes:\n" + e.getMessage(),

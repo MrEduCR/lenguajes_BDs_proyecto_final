@@ -18,7 +18,6 @@ public class MenuPrincipal extends JFrame {
     private JButton btnDetalleOrden;
     private JButton btnInventario;
     private JButton btnMateriaPrima;
-    private JButton btnRecetas;
     private JButton btnAuditoria;
 
     public MenuPrincipal() {
@@ -41,7 +40,6 @@ public class MenuPrincipal extends JFrame {
         btnDetalleOrden = new JButton("Detalle Orden");
         btnInventario = new JButton("Inventario");
         btnMateriaPrima = new JButton("Materia Prima");
-        btnRecetas = new JButton("Recetas");
         btnAuditoria = new JButton("Auditoría");
 
         btnClientes.setBounds(80, 80, 180, 40);
@@ -59,7 +57,6 @@ public class MenuPrincipal extends JFrame {
         btnInventario.setBounds(80, 320, 180, 40);
         btnMateriaPrima.setBounds(400, 320, 180, 40);
 
-        btnRecetas.setBounds(80, 380, 180, 40);
         btnAuditoria.setBounds(400, 380, 180, 40);
 
         add(lblTitulo);
@@ -74,7 +71,6 @@ public class MenuPrincipal extends JFrame {
         add(btnDetalleOrden);
         add(btnInventario);
         add(btnMateriaPrima);
-        add(btnRecetas);
         add(btnAuditoria);
 
         btnClientes.addActionListener(e -> new FrmClientes().setVisible(true));
@@ -87,7 +83,6 @@ public class MenuPrincipal extends JFrame {
         btnDetalleOrden.addActionListener(e -> new FrmDetalleOrden().setVisible(true));
         btnInventario.addActionListener(e -> new FrmInventarioDeItems().setVisible(true));
         btnMateriaPrima.addActionListener(e -> new FrmMateriaPrima().setVisible(true));
-        btnRecetas.addActionListener(e -> new FrmPreProductoItem().setVisible(true));
         btnAuditoria.addActionListener(e -> new FrmAuditoria().setVisible(true));
     }
 }

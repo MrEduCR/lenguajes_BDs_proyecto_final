@@ -32,9 +32,18 @@ public class FrmProveedores extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
-        tabla = new JTable();
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBounds(20, 210, 990, 230);
+      
+        JLabel lblId = new JLabel("ID:");
+        JLabel lblNombre = new JLabel("Nombre:");
+        JLabel lblContacto = new JLabel("Contacto:");
+        JLabel lblTelefono = new JLabel("Teléfono:");
+        JLabel lblCorreo = new JLabel("Correo:");
+
+        lblId.setBounds(20, 0, 100, 20);
+        lblNombre.setBounds(140, 0, 170, 20);
+        lblContacto.setBounds(330, 0, 170, 20);
+        lblTelefono.setBounds(520, 0, 140, 20);
+        lblCorreo.setBounds(680, 0, 220, 20);
 
         txtIdProveedor = new JTextField();
         txtNombre = new JTextField();
@@ -50,6 +59,11 @@ public class FrmProveedores extends JFrame {
 
         txtIdProveedor.setEditable(false);
 
+        tabla = new JTable();
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBounds(20, 210, 990, 230);
+
+        
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -62,12 +76,19 @@ public class FrmProveedores extends JFrame {
         btnEliminar.setBounds(440, 100, 120, 30);
         btnLimpiar.setBounds(580, 100, 120, 30);
 
-        add(scroll);
+        add(lblId);
+        add(lblNombre);
+        add(lblContacto);
+        add(lblTelefono);
+        add(lblCorreo);
+
         add(txtIdProveedor);
         add(txtNombre);
         add(txtContacto);
         add(txtTelefono);
         add(txtCorreo);
+
+        add(scroll);
 
         add(btnCargar);
         add(btnInsertar);

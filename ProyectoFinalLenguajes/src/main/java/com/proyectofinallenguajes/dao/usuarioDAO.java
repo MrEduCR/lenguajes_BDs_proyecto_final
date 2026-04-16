@@ -15,7 +15,7 @@ public class usuarioDAO {
         String sql = "{ call pkg_usuarios.sp_listar_usuarios(?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.registerOutParameter(1, OracleTypes.CURSOR);
             cs.execute();
@@ -27,8 +27,7 @@ public class usuarioDAO {
                             rs.getString("nombre"),
                             rs.getString("correo"),
                             rs.getString("rol"),
-                            rs.getString("estado")
-                    );
+                            rs.getString("estado"));
                     lista.add(obj);
                 }
             }
@@ -38,13 +37,13 @@ public class usuarioDAO {
     }
 
     public int insertarUsuario(String nombre, String correo,
-                               String contrasena,
-                               int idRol, int idEstado) throws SQLException {
+            String contrasena,
+            int idRol, int idEstado) throws SQLException {
 
         String sql = "{ call pkg_usuarios.sp_insertar_usuario(?,?,?,?,?,?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setString(1, nombre);
             cs.setString(2, correo);
@@ -59,14 +58,14 @@ public class usuarioDAO {
     }
 
     public void actualizarUsuario(int idUsuario,
-                                  String nombre,
-                                  String correo,
-                                  int idRol) throws SQLException {
+            String nombre,
+            String correo,
+            int idRol) throws SQLException {
 
         String sql = "{ call pkg_usuarios.sp_actualizar_usuario(?,?,?,?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setInt(1, idUsuario);
             cs.setString(2, nombre);
@@ -82,7 +81,7 @@ public class usuarioDAO {
         String sql = "{ call pkg_usuarios.sp_eliminar_usuario(?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setInt(1, idUsuario);
             cs.execute();
@@ -94,7 +93,7 @@ public class usuarioDAO {
         String sql = "{ call pkg_usuarios.sp_obtener_usuario(?,?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setInt(1, idUsuario);
             cs.registerOutParameter(2, OracleTypes.CURSOR);
@@ -112,6 +111,37 @@ public class usuarioDAO {
                     u.setRol(rs.getString("rol"));
                     u.setEstado(rs.getString("estado"));
 
+                    return u;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public usuario login(String correo, String contrasena) throws SQLException {
+
+        String sql = "{ call pkg_usuarios.sp_login(?,?,?) }";
+
+        try (Connection cn = DatabaseConnection.getConnection();
+                CallableStatement cs = cn.prepareCall(sql)) {
+
+            cs.setString(1, correo);
+            cs.setString(2, contrasena);
+            cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR);
+
+            cs.execute();
+
+            try (ResultSet rs = (ResultSet) cs.getObject(3)) {
+                if (rs.next()) {
+                    usuario u = new usuario();
+                    u.setId_usuario(rs.getInt("id_usuario"));
+                    u.setNombre(rs.getString("nombre"));
+                    u.setCorreo(rs.getString("correo"));
+                    u.setId_rol(rs.getInt("id_rol"));
+                    u.setId_estado(rs.getInt("id_estado"));
+                    u.setRol(rs.getString("rol"));
+                    u.setEstado(rs.getString("estado"));
                     return u;
                 }
             }

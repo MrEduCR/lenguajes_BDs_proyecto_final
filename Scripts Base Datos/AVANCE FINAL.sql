@@ -1005,6 +1005,11 @@ CREATE OR REPLACE PACKAGE pkg_usuarios AS
     PROCEDURE sp_listar_usuarios(p_cursor OUT SYS_REFCURSOR);
     FUNCTION fn_existe_correo(p_correo IN VARCHAR2) RETURN NUMBER;
     FUNCTION fn_contar_usuarios_rol(p_id_rol IN INTEGER) RETURN NUMBER;
+    PROCEDURE sp_login(
+    p_correo IN VARCHAR2,
+    p_contrasena IN VARCHAR2,
+    p_cursor OUT SYS_REFCURSOR
+    );
 END pkg_usuarios;
 /
 
@@ -1115,6 +1120,28 @@ CREATE OR REPLACE PACKAGE BODY pkg_usuarios AS
         WHEN OTHERS THEN
             RAISE_APPLICATION_ERROR(-20109, 'Error listando usuarios: ' || SQLERRM);
     END sp_listar_usuarios;
+
+        PROCEDURE sp_login(
+        p_correo IN VARCHAR2,
+        p_contrasena IN VARCHAR2,
+        p_cursor OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT u.id_usuario,
+                u.nombre,
+                u.correo,
+                u.id_rol,
+                u.id_estado,
+                r.nombre AS rol,
+                e.nombre AS estado
+            FROM usuario u
+            JOIN rol r ON u.id_rol = r.id_rol
+            JOIN estado e ON u.id_estado = e.id_estado
+            WHERE UPPER(u.correo) = UPPER(p_correo)
+            AND u.contrasena = p_contrasena
+            AND e.nombre = 'Activo';
+    END sp_login;
 
 END pkg_usuarios;
 /
