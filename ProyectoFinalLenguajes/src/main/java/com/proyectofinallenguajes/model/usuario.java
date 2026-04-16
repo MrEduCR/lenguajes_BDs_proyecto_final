@@ -4,6 +4,8 @@ public class usuario {
 
     private int id_usuario;
     private String nombre;
+    private String correo;
+  
     private String contrasena;
     private int id_rol;
     private int id_estado;
@@ -14,20 +16,29 @@ public class usuario {
     public usuario() {
     }
 
-    public usuario(int id_usuario, String nombre, String contrasena, int id_rol, int id_estado) {
+    public usuario(int id_usuario, String nombre,String correo, String contrasena, int id_rol, int id_estado) {
         this.id_usuario = id_usuario;
         this.nombre = nombre;
+        this.correo = correo;
         this.contrasena = contrasena;
         this.id_rol = id_rol;
         this.id_estado = id_estado;
     }
 
-    // 👇 constructor para listar
-    public usuario(int id_usuario, String nombre, String rol, String estado) {
+    public usuario(int id_usuario, String nombre, String correo, String rol, String estado) {
         this.id_usuario = id_usuario;
         this.nombre = nombre;
+        this.correo = correo;
         this.rol = rol;
         this.estado = estado;
+    }
+
+      public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
     public int getId_usuario() {

@@ -170,6 +170,8 @@ CREATE OR REPLACE PACKAGE pkg_fabrica AS
     PROCEDURE sp_eliminar_estado(p_id_estado IN INTEGER);
     PROCEDURE sp_obtener_estado(p_id_estado IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_estados(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_listar_detalles(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE sp_listar_detalles_por_orden(p_id_orden IN INTEGER, p_cursor OUT SYS_REFCURSOR);
 
     -- -------------------------------------------------------
     -- PROCEDIMIENTOS CRUD CLIENTE
@@ -729,6 +731,35 @@ CREATE OR REPLACE PACKAGE BODY pkg_fabrica AS
             RAISE_APPLICATION_ERROR(-20058, 'Error eliminando detalle: ' || SQLERRM);
     END sp_eliminar_detalle_orden;
 
+        PROCEDURE sp_listar_detalles(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT d.id_detalle, d.id_orden, i.nombre AS producto,
+                d.cantidad, i.precio_unitario,
+                (d.cantidad * i.precio_unitario) AS subtotal
+            FROM detalle_orden d
+            JOIN item i ON d.id_item = i.id_item
+            ORDER BY d.id_orden, d.id_detalle;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20065, 'Error listando detalles: ' || SQLERRM);
+    END sp_listar_detalles;
+
+    PROCEDURE sp_listar_detalles_por_orden(p_id_orden IN INTEGER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT d.id_detalle, d.id_orden, i.nombre AS producto,
+                d.cantidad, i.precio_unitario,
+                (d.cantidad * i.precio_unitario) AS subtotal
+            FROM detalle_orden d
+            JOIN item i ON d.id_item = i.id_item
+            WHERE d.id_orden = p_id_orden
+            ORDER BY d.id_detalle;
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE_APPLICATION_ERROR(-20066, 'Error listando detalles por orden: ' || SQLERRM);
+    END sp_listar_detalles_por_orden;
+
     PROCEDURE sp_cancelar_orden(p_id_orden IN INTEGER) IS
         v_id_cancelado estado.id_estado%TYPE;
         v_existe       NUMBER;
@@ -1199,11 +1230,22 @@ CREATE OR REPLACE PACKAGE pkg_inventario AS
     PROCEDURE sp_rebajar_inventario(
         p_id_item  IN INTEGER,
         p_cantidad IN NUMBER
-    );
+    )
     PROCEDURE sp_ajustar_inventario(
-        p_id_lote     IN INTEGER,
-        p_nueva_cantidad IN NUMBER
+        p_id_lote IN INTEGER,
+        p_nueva_cantidad IN NUMBER,
+        p_fecha_vencimiento IN TIMESTAMP
+    )
+
+    PROCEDURE sp_obtener_lote(
+    p_id_lote IN INTEGER,
+    p_cursor OUT SYS_REFCURSOR
     );
+
+    PROCEDURE sp_actualizar_fecha_vencimiento(
+    p_id_lote IN INTEGER,
+    p_fecha_vencimiento IN TIMESTAMP
+);
 
     FUNCTION fn_valor_total_inventario RETURN NUMBER;
 END pkg_inventario;
@@ -1270,11 +1312,12 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventario AS
     END sp_rebajar_inventario;
 
     -- SP2: Ajustar cantidad de un lote específico
-    PROCEDURE sp_ajustar_inventario(
-        p_id_lote        IN INTEGER,
-        p_nueva_cantidad IN NUMBER
+        PROCEDURE sp_ajustar_inventario(
+        p_id_lote IN INTEGER,
+        p_nueva_cantidad IN NUMBER,
+        p_fecha_vencimiento IN TIMESTAMP
     ) IS
-        v_existe     NUMBER;
+        v_existe NUMBER;
         ex_no_existe EXCEPTION;
     BEGIN
         IF p_nueva_cantidad < 0 THEN
@@ -1282,16 +1325,20 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventario AS
         END IF;
 
         SELECT COUNT(*) INTO v_existe
-        FROM inventario_de_items WHERE id_lote = p_id_lote;
+        FROM inventario_de_items
+        WHERE id_lote = p_id_lote;
 
         IF v_existe = 0 THEN
             RAISE ex_no_existe;
         END IF;
 
         UPDATE inventario_de_items
-        SET cantidad = p_nueva_cantidad
+        SET cantidad = p_nueva_cantidad,
+            fecha_vencimiento = p_fecha_vencimiento
         WHERE id_lote = p_id_lote;
+
         COMMIT;
+
     EXCEPTION
         WHEN ex_no_existe THEN
             RAISE_APPLICATION_ERROR(-20303, 'Lote no encontrado: ' || p_id_lote);
@@ -1314,6 +1361,39 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventario AS
             RAISE_APPLICATION_ERROR(-20305, 'Error calculando valor del inventario: ' || SQLERRM);
     END fn_valor_total_inventario;
 
+    PROCEDURE sp_obtener_lote(
+            p_id_lote IN INTEGER,
+            p_cursor OUT SYS_REFCURSOR
+        ) IS
+        BEGIN
+            OPEN p_cursor FOR
+                SELECT inv.id_lote,
+                    inv.id_item,
+                    i.nombre AS producto,
+                    inv.cantidad,
+                    inv.fecha_ingreso,
+                    inv.fecha_vencimiento
+                FROM inventario_de_items inv
+                JOIN item i ON inv.id_item = i.id_item
+                WHERE inv.id_lote = p_id_lote;
+        END;
+
+        PROCEDURE sp_actualizar_fecha_vencimiento(
+        p_id_lote IN INTEGER,
+        p_fecha_vencimiento IN TIMESTAMP
+    ) IS
+    BEGIN
+        UPDATE inventario_de_items
+        SET fecha_vencimiento = p_fecha_vencimiento
+        WHERE id_lote = p_id_lote;
+
+        COMMIT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            RAISE_APPLICATION_ERROR(-20306, 'Error actualizando fecha: ' || SQLERRM);
+    END;
+
 END pkg_inventario;
 /
 
@@ -1324,6 +1404,10 @@ END pkg_inventario;
 CREATE OR REPLACE PACKAGE pkg_ordenes AS
     PROCEDURE sp_finalizar_orden(p_id_orden IN INTEGER);
     FUNCTION fn_total_ordenes_pendientes RETURN NUMBER;
+    PROCEDURE sp_obtener_orden(
+    p_id_orden IN INTEGER,
+    p_cursor OUT SYS_REFCURSOR
+);
 END pkg_ordenes;
 /
 
@@ -1374,6 +1458,27 @@ CREATE OR REPLACE PACKAGE BODY pkg_ordenes AS
         WHEN OTHERS THEN
             RAISE_APPLICATION_ERROR(-20403, 'Error contando órdenes pendientes: ' || SQLERRM);
     END fn_total_ordenes_pendientes;
+
+            PROCEDURE sp_obtener_orden(
+            p_id_orden IN INTEGER,
+            p_cursor OUT SYS_REFCURSOR
+        ) IS
+        BEGIN
+            OPEN p_cursor FOR
+                SELECT o.id_orden,
+                    o.fecha,
+                    o.id_cliente,
+                    o.id_usuario,
+                    o.id_estado,
+                    c.nombre AS cliente,
+                    u.nombre AS usuario,
+                    e.nombre AS estado
+                FROM orden o
+                JOIN cliente c ON o.id_cliente = c.id_cliente
+                JOIN usuario u ON o.id_usuario = u.id_usuario
+                JOIN estado e ON o.id_estado = e.id_estado
+                WHERE o.id_orden = p_id_orden;
+        END;
 
 END pkg_ordenes;
 /
@@ -1772,11 +1877,14 @@ CREATE OR REPLACE PACKAGE BODY pkg_roles AS
             RAISE_APPLICATION_ERROR(-20907, 'Error obteniendo rol: ' || SQLERRM);
     END sp_obtener_rol;
 
-    PROCEDURE sp_listar_roles(p_cursor OUT SYS_REFCURSOR) IS
+   PROCEDURE sp_listar_roles(p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
-            SELECT r.id_rol, r.nombre, r.descripcion,
-                   e.nombre AS estado
+            SELECT r.id_rol,
+                r.nombre,
+                r.descripcion,
+                r.id_estado,
+                e.nombre AS estado
             FROM rol r
             JOIN estado e ON r.id_estado = e.id_estado
             ORDER BY r.nombre;
@@ -2564,6 +2672,7 @@ BEGIN
     COMMIT;
 END;
 /
+
 
 
 ----------------Prueba Trigger-------------------------------------------------

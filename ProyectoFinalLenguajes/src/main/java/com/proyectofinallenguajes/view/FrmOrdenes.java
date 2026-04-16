@@ -81,12 +81,28 @@ public class FrmOrdenes extends JFrame {
         btnCancelar.addActionListener(e -> cancelarOrden());
         btnPendientes.addActionListener(e -> mostrarPendientes());
         btnLimpiar.addActionListener(e -> limpiarCampos());
-
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
+
                 if (fila != -1) {
-                    txtIdOrden.setText(tabla.getValueAt(fila, 0).toString());
+                    try {
+                        int idOrden = Integer.parseInt(
+                                tabla.getValueAt(fila, 0).toString());
+
+                        orden o = dao.obtenerOrden(idOrden);
+
+                        if (o != null) {
+                            txtIdOrden.setText(String.valueOf(o.getId_orden()));
+                            txtIdCliente.setText(String.valueOf(o.getId_cliente()));
+                            txtIdUsuario.setText(String.valueOf(o.getId_usuario()));
+                            txtIdEstado.setText(String.valueOf(o.getId_estado()));
+                        }
+
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error:\n" + ex.getMessage());
+                    }
                 }
             }
         });
@@ -98,7 +114,7 @@ public class FrmOrdenes extends JFrame {
         try {
             List<orden> lista = dao.listarOrdenes();
 
-            String[] columnas = {"ID Orden", "Fecha", "Cliente", "Usuario", "Estado", "Total"};
+            String[] columnas = { "ID Orden", "Fecha", "Cliente", "Usuario", "Estado", "Total" };
             DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -107,13 +123,13 @@ public class FrmOrdenes extends JFrame {
             };
 
             for (orden obj : lista) {
-                modelo.addRow(new Object[]{
-                    obj.getId_orden(),
-                    obj.getFecha(),
-                    obj.getCliente(),
-                    obj.getUsuario(),
-                    obj.getEstado(),
-                    obj.getTotal()
+                modelo.addRow(new Object[] {
+                        obj.getId_orden(),
+                        obj.getFecha(),
+                        obj.getCliente(),
+                        obj.getUsuario(),
+                        obj.getEstado(),
+                        obj.getTotal()
                 });
             }
 
@@ -191,8 +207,7 @@ public class FrmOrdenes extends JFrame {
                 this,
                 "¿Desea cancelar esta orden?",
                 "Confirmar",
-                JOptionPane.YES_NO_OPTION
-        );
+                JOptionPane.YES_NO_OPTION);
 
         if (confirmacion != JOptionPane.YES_OPTION) {
             return;

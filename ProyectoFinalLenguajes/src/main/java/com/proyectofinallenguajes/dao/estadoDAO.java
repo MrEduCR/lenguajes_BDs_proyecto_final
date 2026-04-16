@@ -35,21 +35,17 @@ public class estadoDAO {
         return lista;
     }
 
-    public int insertarEstado(String nombre, String descripcion) throws SQLException {
-
-        String sql = "{ call pkg_fabrica.sp_insertar_estado(?,?,?) }";
-
-        try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
-
-            cs.setString(1, nombre);
-            cs.setString(2, descripcion);
-            cs.registerOutParameter(3, Types.INTEGER);
-
-            cs.execute();
-            return cs.getInt(3);
-        }
+    public void insertarEstado(String nombre, String descripcion) throws SQLException {
+    String sql = "{ call pkg_fabrica.sp_insertar_estado(?,?) }";
+    
+    try (Connection cn = DatabaseConnection.getConnection();
+         CallableStatement cs = cn.prepareCall(sql)) {
+        
+        cs.setString(1, nombre);
+        cs.setString(2, descripcion);
+        cs.execute();
     }
+}
 
     public void actualizarEstado(int id, String nombre, String descripcion) throws SQLException {
 

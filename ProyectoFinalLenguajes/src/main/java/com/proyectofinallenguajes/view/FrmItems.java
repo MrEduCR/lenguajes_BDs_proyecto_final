@@ -104,7 +104,7 @@ public class FrmItems extends JFrame {
         try {
             List<item> lista = dao.listarItems();
 
-            String[] columnas = {"ID", "Nombre", "Descripción", "Unidad", "Precio", "Estado"};
+            String[] columnas = {"ID", "Nombre", "Descripción", "Por unidad o por kilo", "Precio", "Estado"};
             DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {

@@ -12,10 +12,10 @@ public class rolDAO {
     public List<rol> listarRoles() throws SQLException {
         List<rol> lista = new ArrayList<>();
 
-        String sql = "{ call pkg_fabrica.sp_listar_roles(?) }";
+        String sql = "{ call pkg_roles.sp_listar_roles(?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.registerOutParameter(1, OracleTypes.CURSOR);
             cs.execute();
@@ -26,8 +26,7 @@ public class rolDAO {
                             rs.getInt("id_rol"),
                             rs.getString("nombre"),
                             rs.getString("descripcion"),
-                            rs.getInt("id_estado")
-                    );
+                            rs.getInt("id_estado"));
                     obj.setEstado(rs.getString("estado"));
                     lista.add(obj);
                 }
@@ -39,10 +38,10 @@ public class rolDAO {
 
     public int insertarRol(String nombre, String descripcion, int idEstado) throws SQLException {
 
-        String sql = "{ call pkg_fabrica.sp_insertar_rol(?,?,?,?) }";
+        String sql = "{ call pkg_roles.sp_insertar_rol(?,?,?,?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setString(1, nombre);
             cs.setString(2, descripcion);
@@ -56,10 +55,10 @@ public class rolDAO {
 
     public void actualizarRol(int idRol, String nombre, String descripcion) throws SQLException {
 
-        String sql = "{ call pkg_fabrica.sp_actualizar_rol(?,?,?) }";
+        String sql = "{ call pkg_roles.sp_actualizar_rol(?,?,?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setInt(1, idRol);
             cs.setString(2, nombre);
@@ -70,10 +69,10 @@ public class rolDAO {
 
     public void eliminarRol(int idRol) throws SQLException {
 
-        String sql = "{ call pkg_fabrica.sp_eliminar_rol(?) }";
+        String sql = "{ call pkg_roles.sp_eliminar_rol(?) }";
 
         try (Connection cn = DatabaseConnection.getConnection();
-             CallableStatement cs = cn.prepareCall(sql)) {
+                CallableStatement cs = cn.prepareCall(sql)) {
 
             cs.setInt(1, idRol);
             cs.execute();

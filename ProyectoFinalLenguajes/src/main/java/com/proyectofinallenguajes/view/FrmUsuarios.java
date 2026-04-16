@@ -10,9 +10,9 @@ import javax.swing.table.DefaultTableModel;
 public class FrmUsuarios extends JFrame {
 
     private JTable tabla;
-
     private JTextField txtId;
     private JTextField txtNombre;
+    private JTextField txtCorreo;
     private JTextField txtContrasena;
     private JTextField txtIdRol;
     private JTextField txtIdEstado;
@@ -32,21 +32,24 @@ public class FrmUsuarios extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
+
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 210, 940, 230);
 
         txtId = new JTextField();
         txtNombre = new JTextField();
+        txtCorreo = new JTextField();
         txtContrasena = new JTextField();
         txtIdRol = new JTextField();
         txtIdEstado = new JTextField();
 
         txtId.setBounds(20, 20, 80, 25);
         txtNombre.setBounds(120, 20, 150, 25);
-        txtContrasena.setBounds(290, 20, 150, 25);
-        txtIdRol.setBounds(460, 20, 100, 25);
-        txtIdEstado.setBounds(580, 20, 100, 25);
+        txtCorreo.setBounds(290, 20, 150, 25);
+        txtContrasena.setBounds(460, 20, 150, 25);
+        txtIdRol.setBounds(630, 20, 100, 25);
+        txtIdEstado.setBounds(750, 20, 100, 25);
 
         txtId.setEditable(false);
 
@@ -63,8 +66,10 @@ public class FrmUsuarios extends JFrame {
         btnLimpiar.setBounds(580, 100, 120, 30);
 
         add(scroll);
+
         add(txtId);
         add(txtNombre);
+        add(txtCorreo);
         add(txtContrasena);
         add(txtIdRol);
         add(txtIdEstado);
@@ -81,12 +86,34 @@ public class FrmUsuarios extends JFrame {
         btnEliminar.addActionListener(e -> eliminar());
         btnLimpiar.addActionListener(e -> limpiar());
 
+      
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
+
                 if (fila != -1) {
-                    txtId.setText(tabla.getValueAt(fila, 0).toString());
-                    txtNombre.setText(tabla.getValueAt(fila, 1).toString());
+                    try {
+                        int idUsuario = Integer.parseInt(
+                                tabla.getValueAt(fila, 0).toString()
+                        );
+
+                        usuario u = dao.obtenerUsuario(idUsuario);
+
+                        if (u != null) {
+                            txtId.setText(String.valueOf(u.getId_usuario()));
+                            txtNombre.setText(u.getNombre());
+                            txtCorreo.setText(u.getCorreo());
+                            txtIdRol.setText(String.valueOf(u.getId_rol()));
+                            txtIdEstado.setText(String.valueOf(u.getId_estado()));
+
+                         
+                            txtContrasena.setText("");
+                        }
+
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error:\n" + ex.getMessage());
+                    }
                 }
             }
         });
@@ -113,7 +140,8 @@ public class FrmUsuarios extends JFrame {
             tabla.setModel(modelo);
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error:\n" + e.getMessage());
         }
     }
 
@@ -121,6 +149,7 @@ public class FrmUsuarios extends JFrame {
         try {
             dao.insertarUsuario(
                     txtNombre.getText(),
+                    txtCorreo.getText(),
                     txtContrasena.getText(),
                     Integer.parseInt(txtIdRol.getText()),
                     Integer.parseInt(txtIdEstado.getText())
@@ -131,7 +160,8 @@ public class FrmUsuarios extends JFrame {
             limpiar();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error:\n" + e.getMessage());
         }
     }
 
@@ -140,8 +170,8 @@ public class FrmUsuarios extends JFrame {
             dao.actualizarUsuario(
                     Integer.parseInt(txtId.getText()),
                     txtNombre.getText(),
-                    Integer.parseInt(txtIdRol.getText()),
-                    Integer.parseInt(txtIdEstado.getText())
+                    txtCorreo.getText(),
+                    Integer.parseInt(txtIdRol.getText())
             );
 
             JOptionPane.showMessageDialog(this, "Actualizado");
@@ -149,25 +179,31 @@ public class FrmUsuarios extends JFrame {
             limpiar();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error:\n" + e.getMessage());
         }
     }
 
     private void eliminar() {
         try {
-            dao.eliminarUsuario(Integer.parseInt(txtId.getText()));
+            dao.eliminarUsuario(
+                    Integer.parseInt(txtId.getText())
+            );
+
             JOptionPane.showMessageDialog(this, "Eliminado");
             cargar();
             limpiar();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error:\n" + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error:\n" + e.getMessage());
         }
     }
 
     private void limpiar() {
         txtId.setText("");
         txtNombre.setText("");
+        txtCorreo.setText("");
         txtContrasena.setText("");
         txtIdRol.setText("");
         txtIdEstado.setText("");
