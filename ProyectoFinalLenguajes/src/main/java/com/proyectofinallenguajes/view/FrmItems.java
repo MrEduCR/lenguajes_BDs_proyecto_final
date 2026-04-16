@@ -33,12 +33,12 @@ public class FrmItems extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
-        // TABLA
+      
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 200, 940, 220);
 
-        // LABELS
+     
         JLabel lblId = new JLabel("ID:");
         JLabel lblNombre = new JLabel("Nombre:");
         JLabel lblDescripcion = new JLabel("Descripción:");
@@ -51,7 +51,7 @@ public class FrmItems extends JFrame {
         lblUnidadMedida.setBounds(520, 20, 120, 20);
         lblPrecio.setBounds(660, 20, 100, 20);
 
-        // TEXTFIELDS
+     
         txtId = new JTextField();
         txtNombre = new JTextField();
         txtDescripcion = new JTextField();
@@ -66,7 +66,7 @@ public class FrmItems extends JFrame {
 
         txtId.setEditable(false);
 
-        // BOTONES
+        
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -79,7 +79,7 @@ public class FrmItems extends JFrame {
         btnEliminar.setBounds(440, 100, 120, 30);
         btnLimpiar.setBounds(580, 100, 120, 30);
 
-        // AGREGAR COMPONENTES
+
         add(scroll);
 
         add(lblId);
@@ -99,8 +99,7 @@ public class FrmItems extends JFrame {
         add(btnActualizar);
         add(btnEliminar);
         add(btnLimpiar);
-
-        // EVENTOS
+   
         btnCargar.addActionListener(e -> cargar());
         btnInsertar.addActionListener(e -> insertarItem());
         btnActualizar.addActionListener(e -> actualizarItem());

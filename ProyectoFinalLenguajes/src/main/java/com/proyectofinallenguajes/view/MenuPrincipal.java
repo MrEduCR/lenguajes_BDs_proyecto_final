@@ -18,11 +18,12 @@ public class MenuPrincipal extends JFrame {
     private JButton btnDetalleOrden;
     private JButton btnInventario;
     private JButton btnMateriaPrima;
+    private JButton btnReportes;
     private JButton btnAuditoria;
 
     public MenuPrincipal() {
         setTitle("Sistema Suproli - Menú Principal");
-        setSize(700, 500);
+        setSize(700, 560);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
@@ -40,6 +41,7 @@ public class MenuPrincipal extends JFrame {
         btnDetalleOrden = new JButton("Detalle Orden");
         btnInventario = new JButton("Inventario");
         btnMateriaPrima = new JButton("Materia Prima");
+        btnReportes = new JButton("Reportes");
         btnAuditoria = new JButton("Auditoría");
 
         btnClientes.setBounds(80, 80, 180, 40);
@@ -57,6 +59,7 @@ public class MenuPrincipal extends JFrame {
         btnInventario.setBounds(80, 320, 180, 40);
         btnMateriaPrima.setBounds(400, 320, 180, 40);
 
+        btnReportes.setBounds(80, 380, 180, 40);
         btnAuditoria.setBounds(400, 380, 180, 40);
 
         add(lblTitulo);
@@ -71,6 +74,7 @@ public class MenuPrincipal extends JFrame {
         add(btnDetalleOrden);
         add(btnInventario);
         add(btnMateriaPrima);
+        add(btnReportes);
         add(btnAuditoria);
 
         btnClientes.addActionListener(e -> new FrmClientes().setVisible(true));
@@ -83,6 +87,7 @@ public class MenuPrincipal extends JFrame {
         btnDetalleOrden.addActionListener(e -> new FrmDetalleOrden().setVisible(true));
         btnInventario.addActionListener(e -> new FrmInventarioDeItems().setVisible(true));
         btnMateriaPrima.addActionListener(e -> new FrmMateriaPrima().setVisible(true));
+        btnReportes.addActionListener(e -> new FrmReportes().setVisible(true));
         btnAuditoria.addActionListener(e -> new FrmAuditoria().setVisible(true));
     }
 }
