@@ -1,5 +1,6 @@
 package com.proyectofinallenguajes.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class orden {
@@ -8,7 +9,12 @@ public class orden {
     private int id_cliente;
     private int id_usuario;
     private int id_estado;
-    
+
+    private String cliente;
+    private String usuario;
+    private String estado;
+    private BigDecimal total;
+
     public orden() {
     }
 
@@ -19,35 +25,85 @@ public class orden {
         this.id_usuario = id_usuario;
         this.id_estado = id_estado;
     }
-    
+
+    public orden(int id_orden, LocalDateTime fecha, String cliente, String usuario, String estado, BigDecimal total) {
+        this.id_orden = id_orden;
+        this.fecha = fecha;
+        this.cliente = cliente;
+        this.usuario = usuario;
+        this.estado = estado;
+        this.total = total;
+    }
+
     public int getId_orden() {
         return id_orden;
     }
+
     public void setId_orden(int id_orden) {
         this.id_orden = id_orden;
     }
+
     public LocalDateTime getFecha() {
         return fecha;
     }
+
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
+
     public int getId_cliente() {
         return id_cliente;
     }
+
     public void setId_cliente(int id_cliente) {
         this.id_cliente = id_cliente;
     }
+
     public int getId_usuario() {
         return id_usuario;
     }
+
     public void setId_usuario(int id_usuario) {
         this.id_usuario = id_usuario;
     }
+
     public int getId_estado() {
         return id_estado;
     }
+
     public void setId_estado(int id_estado) {
         this.id_estado = id_estado;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 }

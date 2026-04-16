@@ -1,10 +1,13 @@
 package com.proyectofinallenguajes.model;
 
 public class rol {
+
     private int id_rol;
     private String nombre;
     private String descripcion;
     private int id_estado;
+
+    private String estado;
 
     public rol() {
     }
@@ -14,6 +17,14 @@ public class rol {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.id_estado = id_estado;
+    }
+
+    public rol(int id_rol, String nombre, String descripcion, int id_estado, String estado) {
+        this.id_rol = id_rol;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.id_estado = id_estado;
+        this.estado = estado;
     }
 
     public int getId_rol() {
@@ -48,4 +59,11 @@ public class rol {
         this.id_estado = id_estado;
     }
 
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }

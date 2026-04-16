@@ -7,6 +7,7 @@ public class proveedor {
     private String telefono;
     private String correo;
     private int id_estado;
+    private String estado;
 
     public proveedor() {
     }
@@ -19,44 +20,69 @@ public class proveedor {
         this.correo = correo;
         this.id_estado = id_estado;
     }
+
+    public proveedor(int id_proveedor, String nombre, String contacto, String telefono, String correo, String estado) {
+        this.id_proveedor = id_proveedor;
+        this.nombre = nombre;
+        this.contacto = contacto;
+        this.telefono = telefono;
+        this.correo = correo;
+        this.estado = estado;
+    }
+
     public int getId_proveedor() {
         return id_proveedor;
     }
+
     public void setId_proveedor(int id_proveedor) {
         this.id_proveedor = id_proveedor;
     }
+
     public String getNombre() {
         return nombre;
     }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
     public String getContacto() {
         return contacto;
     }
+
     public void setContacto(String contacto) {
         this.contacto = contacto;
     }
+
     public String getTelefono() {
         return telefono;
     }
+
     public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
+
     public String getCorreo() {
         return correo;
     }
+
     public void setCorreo(String correo) {
         this.correo = correo;
     }
+
     public int getId_estado() {
         return id_estado;
     }
+
     public void setId_estado(int id_estado) {
         this.id_estado = id_estado;
     }
 
+    public String getEstado() {
+        return estado;
+    }
 
-
-
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }
