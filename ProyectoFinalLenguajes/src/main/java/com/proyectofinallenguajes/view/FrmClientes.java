@@ -61,7 +61,7 @@ public class FrmClientes extends JFrame {
 
         txtId.setEditable(false);
 
-        JLabel lblDescripcion = new JLabel("Recuerde darle.");
+        JLabel lblDescripcion = new JLabel("Recuerde no darle el ID al cliente, es un dato privado.");
         lblDescripcion.setBounds(20, 85, 700, 20);
         add(lblDescripcion);
 
