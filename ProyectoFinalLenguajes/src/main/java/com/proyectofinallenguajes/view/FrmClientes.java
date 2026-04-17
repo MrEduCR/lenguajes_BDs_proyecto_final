@@ -25,7 +25,7 @@ public class FrmClientes extends JFrame {
 
         setTitle("Gestión de Clientes");
         setSize(950, 550);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
 
@@ -33,7 +33,6 @@ public class FrmClientes extends JFrame {
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(20, 220, 890, 250);
 
-        
         JLabel lblId = new JLabel("ID Cliente:");
         JLabel lblNombre = new JLabel("Nombre:");
         JLabel lblIdentificacion = new JLabel("Identificación:");
@@ -45,7 +44,6 @@ public class FrmClientes extends JFrame {
         lblIdentificacion.setBounds(310, 20, 100, 20);
         lblTelefono.setBounds(480, 20, 100, 20);
         lblCorreo.setBounds(650, 20, 100, 20);
-
 
         txtId = new JTextField();
         txtNombre = new JTextField();
@@ -61,11 +59,9 @@ public class FrmClientes extends JFrame {
 
         txtId.setEditable(false);
 
-        JLabel lblDescripcion = new JLabel("Recuerde no darle el ID al cliente, es un dato privado.");
+        JLabel lblDescripcion = new JLabel("Recuerde no divulgar el ID del cliente cuando sea generado. Es de uso confidencial");
         lblDescripcion.setBounds(20, 85, 700, 20);
-        add(lblDescripcion);
 
-    
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -78,7 +74,6 @@ public class FrmClientes extends JFrame {
         btnEliminar.setBounds(440, 120, 120, 30);
         btnLimpiar.setBounds(580, 120, 120, 30);
 
-        // ADD COMPONENTS
         add(scroll);
 
         add(lblId);
@@ -86,6 +81,7 @@ public class FrmClientes extends JFrame {
         add(lblIdentificacion);
         add(lblTelefono);
         add(lblCorreo);
+        add(lblDescripcion);
 
         add(txtId);
         add(txtNombre);
@@ -99,15 +95,16 @@ public class FrmClientes extends JFrame {
         add(btnEliminar);
         add(btnLimpiar);
 
- 
         btnCargar.addActionListener(e -> cargar());
 
         btnInsertar.addActionListener(e -> {
+            if (!validarCampos()) return;
+
             dao.insertarCliente(
-                    txtNombre.getText(),
-                    txtIdentificacion.getText(),
-                    txtTelefono.getText(),
-                    txtCorreo.getText(),
+                    txtNombre.getText().trim(),
+                    txtIdentificacion.getText().trim(),
+                    txtTelefono.getText().trim(),
+                    txtCorreo.getText().trim(),
                     1
             );
 
@@ -117,11 +114,19 @@ public class FrmClientes extends JFrame {
         });
 
         btnActualizar.addActionListener(e -> {
+
+            if (txtId.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+                return;
+            }
+
+            if (!validarCampos()) return;
+
             dao.actualizarCliente(
                     Integer.parseInt(txtId.getText()),
-                    txtNombre.getText(),
-                    txtTelefono.getText(),
-                    txtCorreo.getText()
+                    txtNombre.getText().trim(),
+                    txtTelefono.getText().trim(),
+                    txtCorreo.getText().trim()
             );
 
             JOptionPane.showMessageDialog(this, "Cliente actualizado correctamente.");
@@ -130,9 +135,13 @@ public class FrmClientes extends JFrame {
         });
 
         btnEliminar.addActionListener(e -> {
-            dao.eliminarCliente(
-                    Integer.parseInt(txtId.getText())
-            );
+
+            if (txtId.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+                return;
+            }
+
+            dao.eliminarCliente(Integer.parseInt(txtId.getText()));
 
             JOptionPane.showMessageDialog(this, "Cliente eliminado correctamente.");
             cargar();
@@ -140,7 +149,6 @@ public class FrmClientes extends JFrame {
         });
 
         btnLimpiar.addActionListener(e -> limpiarCampos());
-
 
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -157,6 +165,22 @@ public class FrmClientes extends JFrame {
         });
 
         cargar();
+    }
+
+    private boolean validarCampos() {
+        if (txtNombre.getText().trim().isEmpty()
+                || txtIdentificacion.getText().trim().isEmpty()
+                || txtTelefono.getText().trim().isEmpty()
+                || txtCorreo.getText().trim().isEmpty()) {
+
+            JOptionPane.showMessageDialog(this,
+                    "No se permiten campos vacios",
+                    "Validación",
+                    JOptionPane.WARNING_MESSAGE);
+
+            return false;
+        }
+        return true;
     }
 
     private void cargar() {
