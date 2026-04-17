@@ -62,7 +62,7 @@ CREATE OR REPLACE VIEW vw_materias_primas AS
     FROM materia_prima mp
     JOIN proveedor p ON mp.id_proveedor = p.id_proveedor;
 
--- Vista 5: Receta de cada producto (osea materias primas que lo componen)
+-- Vista 5: Materias primas del producto
 CREATE OR REPLACE VIEW vw_receta_items AS
     SELECT
         i.id_item,
@@ -150,9 +150,6 @@ CREATE OR REPLACE VIEW vw_roles_usuarios AS
 
 CREATE OR REPLACE PACKAGE pkg_fabrica AS
 
-    -- -------------------------------------------------------
-    -- FUNCIONES 
-    -- -------------------------------------------------------
     FUNCTION fn_stock_item(p_id_item IN INTEGER) RETURN NUMBER;
     FUNCTION fn_total_orden(p_id_orden IN INTEGER) RETURN NUMBER;
     FUNCTION fn_nombre_estado(p_id_estado IN INTEGER) RETURN VARCHAR2;
@@ -162,9 +159,6 @@ CREATE OR REPLACE PACKAGE pkg_fabrica AS
     FUNCTION fn_precio_item(p_id_item IN INTEGER) RETURN NUMBER;
     FUNCTION fn_total_proveedores_activos RETURN NUMBER;
 
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD ESTADO
-    -- -------------------------------------------------------
     PROCEDURE sp_insertar_estado(p_nombre IN VARCHAR2, p_descripcion IN VARCHAR2);
     PROCEDURE sp_actualizar_estado(p_id_estado IN INTEGER, p_nombre IN VARCHAR2, p_descripcion IN VARCHAR2);
     PROCEDURE sp_eliminar_estado(p_id_estado IN INTEGER);
@@ -173,9 +167,7 @@ CREATE OR REPLACE PACKAGE pkg_fabrica AS
     PROCEDURE sp_listar_detalles(p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_detalles_por_orden(p_id_orden IN INTEGER, p_cursor OUT SYS_REFCURSOR);
 
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD CLIENTE
-    -- -------------------------------------------------------
+
     PROCEDURE sp_insertar_cliente(p_nombre IN VARCHAR2, p_identificacion IN VARCHAR2,
                                    p_telefono IN VARCHAR2, p_correo IN VARCHAR2,
                                    p_id_estado IN INTEGER, p_id_nuevo OUT INTEGER);
@@ -184,10 +176,6 @@ CREATE OR REPLACE PACKAGE pkg_fabrica AS
     PROCEDURE sp_eliminar_cliente(p_id_cliente IN INTEGER);
     PROCEDURE sp_obtener_cliente(p_id_cliente IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_clientes(p_cursor OUT SYS_REFCURSOR);
-
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD ITEM
-    -- -------------------------------------------------------
     PROCEDURE sp_insertar_item(p_nombre IN VARCHAR2, p_descripcion IN CLOB,
                                 p_unidad IN VARCHAR2, p_precio IN NUMBER,
                                 p_id_estado IN INTEGER, p_id_nuevo OUT INTEGER);
@@ -196,18 +184,13 @@ CREATE OR REPLACE PACKAGE pkg_fabrica AS
     PROCEDURE sp_obtener_item(p_id_item IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_items(p_cursor OUT SYS_REFCURSOR);
 
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD PROVEEDOR
-    -- -------------------------------------------------------
+
     PROCEDURE sp_insertar_proveedor(p_nombre IN VARCHAR2, p_contacto IN VARCHAR2,
                                      p_telefono IN VARCHAR2, p_correo IN VARCHAR2,
                                      p_id_estado IN INTEGER, p_id_nuevo OUT INTEGER);
     PROCEDURE sp_obtener_proveedor(p_id_proveedor IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_proveedores(p_cursor OUT SYS_REFCURSOR);
 
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD ORDEN
-    -- -------------------------------------------------------
     PROCEDURE sp_crear_orden(p_id_cliente IN INTEGER, p_id_usuario IN INTEGER,
                               p_id_estado IN INTEGER, p_id_nueva OUT INTEGER);
     PROCEDURE sp_agregar_detalle_orden(p_id_orden IN INTEGER, p_id_item IN INTEGER,
@@ -217,31 +200,19 @@ CREATE OR REPLACE PACKAGE pkg_fabrica AS
     PROCEDURE sp_cancelar_orden(p_id_orden IN INTEGER);
     PROCEDURE sp_obtener_orden(p_id_orden IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_ordenes(p_cursor OUT SYS_REFCURSOR);
-
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD INVENTARIO
-    -- -------------------------------------------------------
     PROCEDURE sp_ingresar_lote(p_id_item IN INTEGER, p_cantidad IN NUMBER,
                                 p_fecha_venc IN TIMESTAMP);
     PROCEDURE sp_obtener_lote(p_id_lote IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_inventario(p_cursor OUT SYS_REFCURSOR);
 
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD MATERIA PRIMA
-    -- -------------------------------------------------------
+
     PROCEDURE sp_obtener_materia_prima(p_id_materia_prima IN INTEGER, p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_listar_materias_primas(p_cursor OUT SYS_REFCURSOR);
     PROCEDURE sp_eliminar_materia_prima(p_id_materia_prima IN INTEGER);
 
-    -- -------------------------------------------------------
-    -- PROCEDIMIENTOS CRUD PRE_PRODUCTO_ITEM (receta)
-    -- -------------------------------------------------------
     PROCEDURE sp_eliminar_receta(p_id_pre_producto IN INTEGER);
     PROCEDURE sp_listar_receta(p_id_item IN INTEGER, p_cursor OUT SYS_REFCURSOR);
 
-    -- -------------------------------------------------------
-    -- REPORTE
-    -- -------------------------------------------------------
     PROCEDURE sp_reporte_ordenes_cliente(p_id_cliente IN INTEGER, p_cursor OUT SYS_REFCURSOR);
 
 END pkg_fabrica;
