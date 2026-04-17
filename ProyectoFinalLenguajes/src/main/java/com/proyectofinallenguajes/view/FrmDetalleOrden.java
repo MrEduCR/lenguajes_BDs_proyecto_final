@@ -59,7 +59,7 @@ public class FrmDetalleOrden extends JFrame {
         txtIdDetalle.setEditable(false);
 
 
-        JLabel lblDescripcion = new JLabel("Pregunte al cliente por su ID de orden e ingresela. Agregue el ID del producto ubicado en la etiqueta inferior o en la tapa, luego ingrese la cantidad del producto");
+        JLabel lblDescripcion = new JLabel("Agregue el ID del producto ubicado en la etiqueta inferior o en la tapa, luego ingrese la cantidad del producto");
         lblDescripcion.setBounds(20, 80, 700, 20);
 
         
