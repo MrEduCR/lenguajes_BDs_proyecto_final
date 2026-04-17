@@ -46,7 +46,7 @@ public class FrmClientes extends JFrame {
         lblTelefono.setBounds(480, 20, 100, 20);
         lblCorreo.setBounds(650, 20, 100, 20);
 
-        // TEXTFIELDS
+
         txtId = new JTextField();
         txtNombre = new JTextField();
         txtIdentificacion = new JTextField();
@@ -61,7 +61,11 @@ public class FrmClientes extends JFrame {
 
         txtId.setEditable(false);
 
-        // BOTONES
+        JLabel lblDescripcion = new JLabel("Recuerde darle.");
+        lblDescripcion.setBounds(20, 85, 700, 20);
+        add(lblDescripcion);
+
+    
         btnCargar = new JButton("Cargar");
         btnInsertar = new JButton("Insertar");
         btnActualizar = new JButton("Actualizar");
@@ -95,8 +99,7 @@ public class FrmClientes extends JFrame {
         add(btnEliminar);
         add(btnLimpiar);
 
-        // EVENTOS
-
+ 
         btnCargar.addActionListener(e -> cargar());
 
         btnInsertar.addActionListener(e -> {
@@ -138,7 +141,7 @@ public class FrmClientes extends JFrame {
 
         btnLimpiar.addActionListener(e -> limpiarCampos());
 
-        // CLICK EN TABLA → llenar inputs
+
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();

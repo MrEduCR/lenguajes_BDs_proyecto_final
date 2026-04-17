@@ -16,6 +16,7 @@ public class FrmDetalleOrden extends JFrame {
     private JTextField txtIdItem;
     private JTextField txtCantidad;
     private JTextField txtFiltroOrden;
+
     private JButton btnCargar;
     private JButton btnBuscarPorOrden;
     private JButton btnInsertar;
@@ -33,7 +34,6 @@ public class FrmDetalleOrden extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
-        // LABELS
         JLabel lblIdDetalle = new JLabel("ID Detalle:");
         JLabel lblIdOrden = new JLabel("ID Orden:");
         JLabel lblIdItem = new JLabel("ID Item:");
@@ -44,9 +44,7 @@ public class FrmDetalleOrden extends JFrame {
         lblIdOrden.setBounds(140, 20, 100, 20);
         lblIdItem.setBounds(260, 20, 100, 20);
         lblCantidad.setBounds(380, 20, 100, 20);
-        lblFiltroOrden.setBounds(20, 75, 150, 20);
 
-        // TEXTFIELDS
         txtIdDetalle = new JTextField();
         txtIdOrden = new JTextField();
         txtIdItem = new JTextField();
@@ -57,11 +55,20 @@ public class FrmDetalleOrden extends JFrame {
         txtIdOrden.setBounds(140, 45, 100, 25);
         txtIdItem.setBounds(260, 45, 100, 25);
         txtCantidad.setBounds(380, 45, 120, 25);
-        txtFiltroOrden.setBounds(20, 100, 120, 25);
 
         txtIdDetalle.setEditable(false);
 
-        // BUTTONS
+
+        JLabel lblDescripcion = new JLabel("Pregunte al cliente por su ID de orden e ingresela. Agregue el ID del producto ubicado en la etiqueta inferior o en la tapa, luego ingrese la cantidad del producto");
+        lblDescripcion.setBounds(20, 80, 700, 20);
+
+        
+        lblFiltroOrden.setBounds(20, 110, 150, 20);
+        txtFiltroOrden.setBounds(20, 135, 120, 25);
+
+        JSeparator separador = new JSeparator();
+        separador.setBounds(20, 170, 980, 10);
+
         btnCargar = new JButton("Cargar Todos");
         btnBuscarPorOrden = new JButton("Buscar por Orden");
         btnInsertar = new JButton("Insertar");
@@ -69,19 +76,17 @@ public class FrmDetalleOrden extends JFrame {
         btnEliminar = new JButton("Eliminar");
         btnLimpiar = new JButton("Limpiar");
 
-        btnCargar.setBounds(160, 98, 130, 30);
-        btnBuscarPorOrden.setBounds(310, 98, 160, 30);
-        btnInsertar.setBounds(490, 98, 110, 30);
-        btnActualizar.setBounds(620, 98, 120, 30);
-        btnEliminar.setBounds(760, 98, 110, 30);
-        btnLimpiar.setBounds(890, 98, 110, 30);
+        btnCargar.setBounds(160, 180, 130, 30);
+        btnBuscarPorOrden.setBounds(310, 180, 160, 30);
+        btnInsertar.setBounds(490, 180, 110, 30);
+        btnActualizar.setBounds(620, 180, 120, 30);
+        btnEliminar.setBounds(760, 180, 110, 30);
+        btnLimpiar.setBounds(890, 180, 110, 30);
 
-        // TABLE
         tabla = new JTable();
         JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBounds(20, 150, 980, 360);
+        scroll.setBounds(20, 230, 980, 300);
 
-        // ADD COMPONENTS
         add(lblIdDetalle);
         add(lblIdOrden);
         add(lblIdItem);
@@ -94,15 +99,18 @@ public class FrmDetalleOrden extends JFrame {
         add(txtCantidad);
         add(txtFiltroOrden);
 
+        add(lblDescripcion);
+        add(separador);
+
         add(btnCargar);
         add(btnBuscarPorOrden);
         add(btnInsertar);
         add(btnActualizar);
         add(btnEliminar);
         add(btnLimpiar);
+
         add(scroll);
 
-        // EVENTS
         btnCargar.addActionListener(e -> cargarTodos());
         btnBuscarPorOrden.addActionListener(e -> buscarPorOrden());
         btnInsertar.addActionListener(e -> insertarDetalle());
@@ -110,7 +118,6 @@ public class FrmDetalleOrden extends JFrame {
         btnEliminar.addActionListener(e -> eliminarDetalle());
         btnLimpiar.addActionListener(e -> limpiarCampos());
 
-        // TABLE SELECTION
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
@@ -119,8 +126,6 @@ public class FrmDetalleOrden extends JFrame {
                     txtIdDetalle.setText(tabla.getValueAt(fila, 0).toString());
                     txtIdOrden.setText(tabla.getValueAt(fila, 1).toString());
                     txtCantidad.setText(tabla.getValueAt(fila, 3).toString());
-
-                    // ID item no viene en tabla porque no se muestra
                     txtIdItem.setText("");
                 }
             }
@@ -139,18 +144,15 @@ public class FrmDetalleOrden extends JFrame {
 
     private void buscarPorOrden() {
         if (txtFiltroOrden.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Ingrese un ID de orden para filtrar.");
+            JOptionPane.showMessageDialog(this, "Ingrese un ID de orden para filtrar.");
             return;
         }
 
         try {
             int idOrden = Integer.parseInt(txtFiltroOrden.getText().trim());
             cargarTabla(dao.listarDetallesPorOrden(idOrden));
-
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "El ID de orden debe ser numérico.");
+            JOptionPane.showMessageDialog(this, "El ID de orden debe ser numérico.");
         } catch (SQLException e) {
             mostrarError("Error al buscar detalles por orden", e);
         }
@@ -161,8 +163,7 @@ public class FrmDetalleOrden extends JFrame {
                 || txtIdItem.getText().trim().isEmpty()
                 || txtCantidad.getText().trim().isEmpty()) {
 
-            JOptionPane.showMessageDialog(this,
-                    "Complete ID Orden, ID Item y Cantidad.");
+            JOptionPane.showMessageDialog(this, "Complete ID Orden, ID Item y Cantidad.");
             return;
         }
 
@@ -173,15 +174,13 @@ public class FrmDetalleOrden extends JFrame {
 
             dao.insertarDetalle(idOrden, idItem, cantidad);
 
-            JOptionPane.showMessageDialog(this,
-                    "Detalle insertado correctamente.");
+            JOptionPane.showMessageDialog(this, "Detalle insertado correctamente.");
 
             cargarTodos();
             limpiarCampos();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Los valores numéricos no son válidos.");
+            JOptionPane.showMessageDialog(this, "Los valores numéricos no son válidos.");
         } catch (SQLException e) {
             mostrarError("Error al insertar detalle", e);
         }
@@ -191,8 +190,7 @@ public class FrmDetalleOrden extends JFrame {
         if (txtIdDetalle.getText().trim().isEmpty()
                 || txtCantidad.getText().trim().isEmpty()) {
 
-            JOptionPane.showMessageDialog(this,
-                    "Seleccione un detalle y escriba nueva cantidad.");
+            JOptionPane.showMessageDialog(this, "Seleccione un detalle y escriba nueva cantidad.");
             return;
         }
 
@@ -202,15 +200,13 @@ public class FrmDetalleOrden extends JFrame {
 
             dao.actualizarDetalle(idDetalle, cantidad);
 
-            JOptionPane.showMessageDialog(this,
-                    "Detalle actualizado correctamente.");
+            JOptionPane.showMessageDialog(this, "Detalle actualizado correctamente.");
 
             cargarTodos();
             limpiarCampos();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "La cantidad debe ser numérica.");
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser numérica.");
         } catch (SQLException e) {
             mostrarError("Error al actualizar detalle", e);
         }
@@ -218,8 +214,7 @@ public class FrmDetalleOrden extends JFrame {
 
     private void eliminarDetalle() {
         if (txtIdDetalle.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Seleccione un detalle de la tabla.");
+            JOptionPane.showMessageDialog(this, "Seleccione un detalle de la tabla.");
             return;
         }
 
@@ -237,8 +232,7 @@ public class FrmDetalleOrden extends JFrame {
 
             dao.eliminarDetalle(idDetalle);
 
-            JOptionPane.showMessageDialog(this,
-                    "Detalle eliminado correctamente.");
+            JOptionPane.showMessageDialog(this, "Detalle eliminado correctamente.");
 
             cargarTodos();
             limpiarCampos();
@@ -256,7 +250,7 @@ public class FrmDetalleOrden extends JFrame {
                 "Producto",
                 "Cantidad",
                 "Precio Unitario",
-                "Subtotal (₡) "
+                "Subtotal (₡)"
         };
 
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {

@@ -16,7 +16,6 @@ public class FrmOrdenes extends JFrame {
     private JTextField txtIdUsuario;
     private JTextField txtIdEstado;
 
-    // Labels descriptivos
     private JLabel lblIdOrden;
     private JLabel lblIdCliente;
     private JLabel lblIdUsuario;
@@ -32,22 +31,14 @@ public class FrmOrdenes extends JFrame {
     private final ordenDAO dao = new ordenDAO();
 
     public FrmOrdenes() {
+
         setTitle("CRUD Órdenes");
-        setSize(1050, 520);
+        setSize(1050, 560);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
 
-        // =========================
-        // TABLA
-        // =========================
-        tabla = new JTable();
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBounds(20, 210, 990, 230);
-
-        // =========================
-        // LABELS
-        // =========================
+    
         lblIdOrden = new JLabel("ID Orden:");
         lblIdCliente = new JLabel("ID Cliente:");
         lblIdUsuario = new JLabel("ID Usuario:");
@@ -58,9 +49,7 @@ public class FrmOrdenes extends JFrame {
         lblIdUsuario.setBounds(260, 20, 100, 20);
         lblIdEstado.setBounds(380, 20, 100, 20);
 
-        // =========================
-        // TEXTFIELDS
-        // =========================
+        
         txtIdOrden = new JTextField();
         txtIdCliente = new JTextField();
         txtIdUsuario = new JTextField();
@@ -73,9 +62,14 @@ public class FrmOrdenes extends JFrame {
 
         txtIdOrden.setEditable(false);
 
-        // =========================
-        // BOTONES
-        // =========================
+       
+        JLabel lblDescripcion = new JLabel("Recuerde pedirle el ID al cliente para ingresar la orden y posterior dar ID de la orden al cliente ");
+        lblDescripcion.setBounds(20, 80, 700, 20);
+
+        JSeparator separador = new JSeparator();
+        separador.setBounds(20, 110, 980, 10);
+
+
         btnCargar = new JButton("Cargar");
         btnCrear = new JButton("Crear orden");
         btnFinalizar = new JButton("Finalizar");
@@ -83,17 +77,16 @@ public class FrmOrdenes extends JFrame {
         btnPendientes = new JButton("Pendientes");
         btnLimpiar = new JButton("Limpiar");
 
-        btnCargar.setBounds(20, 100, 120, 30);
-        btnCrear.setBounds(160, 100, 140, 30);
-        btnFinalizar.setBounds(320, 100, 120, 30);
-        btnCancelar.setBounds(460, 100, 120, 30);
-        btnPendientes.setBounds(600, 100, 120, 30);
-        btnLimpiar.setBounds(740, 100, 120, 30);
+        btnCargar.setBounds(20, 130, 120, 30);
+        btnCrear.setBounds(160, 130, 140, 30);
+        btnFinalizar.setBounds(320, 130, 120, 30);
+        btnCancelar.setBounds(460, 130, 120, 30);
+        btnPendientes.setBounds(600, 130, 120, 30);
+        btnLimpiar.setBounds(740, 130, 120, 30);
 
-        // =========================
-        // ADD COMPONENTS
-        // =========================
-        add(scroll);
+        tabla = new JTable();
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBounds(20, 180, 990, 300);
 
         add(lblIdOrden);
         add(lblIdCliente);
@@ -105,16 +98,17 @@ public class FrmOrdenes extends JFrame {
         add(txtIdUsuario);
         add(txtIdEstado);
 
+        add(lblDescripcion);
+        add(separador);
+
         add(btnCargar);
         add(btnCrear);
         add(btnFinalizar);
         add(btnCancelar);
         add(btnPendientes);
         add(btnLimpiar);
+        add(scroll);
 
-        // =========================
-        // EVENTOS
-        // =========================
         btnCargar.addActionListener(e -> cargar());
         btnCrear.addActionListener(e -> crearOrden());
         btnFinalizar.addActionListener(e -> finalizarOrden());
@@ -122,7 +116,6 @@ public class FrmOrdenes extends JFrame {
         btnPendientes.addActionListener(e -> mostrarPendientes());
         btnLimpiar.addActionListener(e -> limpiarCampos());
 
-        // Click en tabla
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int fila = tabla.getSelectedRow();
@@ -173,7 +166,7 @@ public class FrmOrdenes extends JFrame {
             };
 
             for (orden obj : lista) {
-                modelo.addRow(new Object[]{
+                modelo.addRow(new Object[] {
                         obj.getId_orden(),
                         obj.getFecha(),
                         obj.getCliente(),
@@ -261,12 +254,10 @@ public class FrmOrdenes extends JFrame {
                 this,
                 "¿Desea cancelar esta orden?",
                 "Confirmar",
-                JOptionPane.YES_NO_OPTION
-        );
+                JOptionPane.YES_NO_OPTION);
 
-        if (confirmacion != JOptionPane.YES_OPTION) {
+        if (confirmacion != JOptionPane.YES_OPTION)
             return;
-        }
 
         try {
             int idOrden = Integer.parseInt(txtIdOrden.getText().trim());
